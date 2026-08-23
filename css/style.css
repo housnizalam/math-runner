@@ -1,0 +1,610 @@
+:root {
+  /* =========================
+       COLORS
+    ========================= */
+
+  --color-body-bg: #202020;
+
+  --color-game-bg: #d8d8d8;
+  --color-game-border: #111;
+
+  --color-hud-bg: #111;
+  --color-hud-text: white;
+
+  --color-question-bg: #eeeeee;
+  --color-question-border: #999;
+
+  --color-road-bg: #555;
+
+  --color-lane-line: rgba(255, 255, 255, 0.6);
+
+  --color-gate-bg: #744c2c;
+  --color-gate-border: #3f2a18;
+  --color-gate-text: white;
+
+  --color-limit-text: white;
+
+  --color-player-bg: #1976d2;
+  --color-player-text: white;
+
+  --color-game-over-bg: rgba(0, 0, 0, 0.85);
+  --color-game-over-text: white;
+
+  --color-limit-bg: rgba(0, 0, 0, 0.75);
+
+  /* =========================
+       FONT
+    ========================= */
+
+  --font-family-main: Arial, sans-serif;
+
+  --font-size-hud: 1.2rem;
+  --font-size-question: 2.2rem;
+  --font-size-limit: 1.8rem;
+  --font-size-gate: 1rem;
+  --font-size-game-over-title: 3rem;
+  --font-size-game-over-text: 1.5rem;
+  --font-size-button: 1.2rem;
+
+  --font-weight-bold: bold;
+
+  /* =========================
+       GAME SIZE
+    ========================= */
+
+  --game-width: 900px;
+  --game-height: calc(100vh - 20px);
+  --game-border-width: 4px;
+  --game-border-radius: 12px;
+
+  --road-side-padding: 28px;
+
+  /* =========================
+       HUD
+    ========================= */
+
+  --hud-height: 60px;
+  --hud-padding-horizontal: 30px;
+
+  /* =========================
+       QUESTION
+    ========================= */
+
+  --question-height: 90px;
+  --question-border-width: 2px;
+
+  /* =========================
+       ROAD
+    ========================= */
+
+  --road-header-height: 150px;
+
+  /* =========================
+       LANE LINES
+    ========================= */
+
+  --lane-line-width: 3px;
+
+  /* =========================
+       GATES
+    ========================= */
+
+  --gates-top: 40px;
+
+  --gate-group-height: 90px;
+
+  --gate-height: 80px;
+  --gate-horizontal-margin: 10px;
+
+  --gate-border-width: 5px;
+  --gate-border-radius: 8px;
+
+  --limit-top: 18px;
+
+  --gates-row-top: 28px;
+
+  --limits-top: calc(
+    var(--gates-row-top) + (var(--gate-height) - var(--limit-box-height)) / 2
+  );
+  --limit-box-width: 52px;
+  --limit-box-height: 42px;
+  --limit-box-radius: 10px;
+
+  --gate-width-percent: 88%;
+  --gate-top: var(--gates-row-top);
+
+  /* =========================
+       PLAYER
+    ========================= */
+
+  --player-size: 80px;
+  --player-bottom: 180px;
+
+  /* =========================
+       GAME OVER
+    ========================= */
+
+  --game-over-gap: 20px;
+
+  --restart-padding-vertical: 12px;
+  --restart-padding-horizontal: 30px;
+  --restart-border-radius: 8px;
+
+  /* =========================
+       Z-INDEX
+    ========================= */
+
+  --z-lane-lines: 1;
+  --z-gates: 5;
+  --z-limit: 10;
+  --z-player: 10;
+  --z-game-over: 100;
+}
+
+/* =========================
+   RESET
+========================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================
+   BODY
+========================= */
+
+body {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-family: var(--font-family-main);
+
+  background: var(--color-body-bg);
+}
+
+/* =========================
+   GAME
+========================= */
+
+#game {
+  position: relative;
+
+  width: var(--game-width);
+  height: var(--game-height);
+
+  overflow: hidden;
+
+  background: var(--color-game-bg);
+
+  border: var(--game-border-width) solid var(--color-game-border);
+  border-radius: var(--game-border-radius);
+}
+
+/* =========================
+   HUD
+========================= */
+
+#hud {
+  height: var(--hud-height);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 var(--hud-padding-horizontal);
+
+  font-size: var(--font-size-hud);
+  font-weight: var(--font-weight-bold);
+
+  background: var(--color-hud-bg);
+  color: var(--color-hud-text);
+}
+
+/* =========================
+   QUESTION
+========================= */
+
+#question-area {
+  height: var(--question-height);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: var(--color-question-bg);
+
+  border-bottom: var(--question-border-width) solid var(--color-question-border);
+}
+
+#question {
+  font-size: var(--font-size-question);
+}
+
+/* =========================
+   ROAD
+========================= */
+
+#road {
+  position: relative;
+
+  width: 100%;
+  height: calc(100% - var(--road-header-height));
+
+  background: var(--color-road-bg);
+
+  overflow: hidden;
+}
+
+/* =========================
+   LANES
+========================= */
+
+#lanes {
+  position: absolute;
+
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+#lane-lines {
+  position: absolute;
+  inset: 0;
+
+  z-index: var(--z-lane-lines);
+
+  pointer-events: none;
+}
+
+.lane-line {
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+
+  border-left: var(--lane-line-width) dashed var(--color-lane-line);
+}
+
+.line-0 {
+  left: var(--road-side-padding);
+}
+
+.line-1 {
+  left: calc(
+    var(--road-side-padding) + (100% - (var(--road-side-padding) * 2)) / 3
+  );
+}
+
+.line-2 {
+  left: calc(
+    var(--road-side-padding) + ((100% - (var(--road-side-padding) * 2)) / 3) * 2
+  );
+}
+
+.line-3 {
+  right: var(--road-side-padding);
+}
+
+/* =========================
+   GATES
+========================= */
+
+.gates {
+  position: absolute;
+  top: var(--gate-top);
+  left: var(--road-side-padding);
+  width: calc(100% - (var(--road-side-padding) * 2));
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  z-index: var(--z-gates);
+}
+
+.limits {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-limit);
+  pointer-events: none;
+}
+
+.limit-box {
+  position: absolute;
+
+  top: var(--limits-top);
+
+  width: var(--limit-box-width);
+  height: var(--limit-box-height);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: var(--font-size-limit);
+  font-weight: var(--font-weight-bold);
+
+  color: var(--color-limit-text);
+  background: var(--color-limit-bg);
+
+  border-radius: var(--limit-box-radius);
+
+  transform: translateX(-50%);
+}
+
+.limit-0 {
+  left: var(--road-side-padding);
+}
+
+.limit-1 {
+  left: calc(
+    var(--road-side-padding) + (100% - (var(--road-side-padding) * 2)) / 3
+  );
+}
+
+.limit-2 {
+  left: calc(
+    var(--road-side-padding) + ((100% - (var(--road-side-padding) * 2)) / 3) * 2
+  );
+}
+
+.limit-3 {
+  left: calc(100% - var(--road-side-padding));
+}
+
+.gate {
+  width: var(--gate-width-percent);
+  height: var(--gate-height);
+
+  margin: 0 auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: var(--font-size-gate);
+  font-weight: var(--font-weight-bold);
+
+  background: var(--color-gate-bg);
+  color: var(--color-gate-text);
+
+  border: var(--gate-border-width) solid var(--color-gate-border);
+  border-bottom: none;
+
+  border-radius: var(--gate-border-radius) var(--gate-border-radius) 0 0;
+}
+
+#gate-rows {
+  position: absolute;
+  inset: 0;
+
+  z-index: var(--z-gates);
+  pointer-events: none;
+}
+
+.gate-row {
+  position: absolute;
+  inset: 0;
+}
+
+/* =========================
+   PLAYER
+========================= */
+
+#player {
+  position: absolute;
+
+  bottom: var(--player-bottom);
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: var(--player-size);
+  height: var(--player-size);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: var(--color-player-bg);
+  color: var(--color-player-text);
+
+  font-weight: var(--font-weight-bold);
+
+  border-radius: 50%;
+
+  z-index: var(--z-player);
+}
+
+/* =========================
+   GAME OVER
+========================= */
+
+#game-over {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: var(--game-over-gap);
+
+  background: var(--color-game-over-bg);
+
+  color: var(--color-game-over-text);
+
+  z-index: var(--z-game-over);
+}
+
+#game-over h2 {
+  font-size: var(--font-size-game-over-title);
+}
+
+#game-over p {
+  font-size: var(--font-size-game-over-text);
+}
+
+#restart-button {
+  padding: var(--restart-padding-vertical) var(--restart-padding-horizontal);
+
+  font-size: var(--font-size-button);
+
+  border: none;
+  border-radius: var(--restart-border-radius);
+
+  cursor: pointer;
+}
+
+/* =========================
+   Pause Overlay
+========================= */
+
+#pause-overlay {
+  position: absolute;
+
+  top: var(--hud-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #000;
+
+  z-index: 200;
+}
+
+#pause-overlay img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#pause-button {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  background: rgba(0, 0, 0, 0);
+
+  font-size: 1.5rem;
+
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+#level-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.level-label {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.level-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+#level-number {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  min-width: 24px;
+  text-align: center;
+  margin: 2px 0;
+}
+
+#level-up,
+#level-down {
+  border: none;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+}
+
+#level-up:disabled,
+#level-down:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+#game-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#game-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 2px;
+}
+
+#pause-button,
+#stop-button {
+    width: 42px;
+    height: 42px;
+
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: none;
+    background: transparent;
+    color: white;
+
+    cursor: pointer;
+}
+
+#pause-button {
+    font-size: 1.9rem;
+    line-height: 1;
+}
+
+.stop-icon {
+    display: block;
+
+    width: 22px;
+    height: 22px;
+
+    background: currentColor;
+}
+/* =========================
+   UTILITIES
+========================= */
+
+.hidden {
+  display: none !important;
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Math Runner</title>
+
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+
+  <body>
+    <main id="game">
+      <!-- Game information -->
+      <header id="hud">
+        <div id="score">Score: 0</div>
+
+        <div id="level-control">
+          <span class="level-label">Level:</span>
+
+          <div class="level-picker">
+            <button id="level-up" aria-label="Higher level">▲</button>
+            <span id="level-number">1</span>
+            <button id="level-down" aria-label="Lower level">▼</button>
+          </div>
+        </div>
+
+        <div id="lives">Lives: 3</div>
+
+        <div id="game-controls">
+          <button id="stop-button" aria-label="Stop">
+            <span class="stop-icon"></span>
+          </button>
+          <button id="pause-button" aria-label="Play">▶</button>
+        </div>
+      </header>
+
+      <!-- Math question -->
+      <section id="question-area">
+        <h1 id="question">7 + 8 = ?</h1>
+      </section>
+
+      <!-- Game road -->
+      <section id="road">
+        <!-- Lane lines -->
+        <div id="lane-lines">
+          <div class="lane-line line-0"></div>
+          <div class="lane-line line-1"></div>
+          <div class="lane-line line-2"></div>
+          <div class="lane-line line-3"></div>
+        </div>
+
+        <!-- Dynamic gate rows -->
+        <div id="gate-rows"></div>
+
+        <!-- Lanes -->
+        <div id="lanes">
+          <div class="lane" data-lane="0"></div>
+          <div class="lane" data-lane="1"></div>
+          <div class="lane" data-lane="2"></div>
+        </div>
+
+        <!-- Player -->
+        <div id="player" data-lane="1">PLAYER</div>
+      </section>
+
+      <!-- Game over screen -->
+      <section id="game-over" class="hidden">
+        <h2>Game Over</h2>
+
+        <p>
+          Level:
+          <span id="final-level"> 0 </span>
+        </p>
+
+        <button id="restart-button">Restart</button>
+      </section>
+      <button id="pause-button" aria-label="Pause">⏸</button>
+      <div id="pause-overlay" class="hidden">
+        <img src="./assets/images/pause.jpg" alt="Paused" />
+      </div>
+    </main>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
