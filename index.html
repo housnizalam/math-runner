@@ -65,6 +65,50 @@
         <div id="player" data-lane="1">PLAYER</div>
       </section>
 
+      <div id="start-overlay">
+        <button id="start-play-button" aria-label="Start game">▶</button>
+      </div>
+
+      <aside id="operation-controls">
+        <label class="operation-option">
+          <input
+            type="checkbox"
+            class="operation-checkbox"
+            value="addition"
+            checked
+          />
+          <span>+</span>
+        </label>
+
+        <label class="operation-option">
+          <input
+            type="checkbox"
+            class="operation-checkbox"
+            value="subtraction"
+          />
+          <span>−</span>
+        </label>
+
+        <label class="operation-option">
+          <input
+            type="checkbox"
+            class="operation-checkbox"
+            value="multiplication"
+          />
+          <span>×</span>
+        </label>
+
+        <label class="operation-option">
+          <input type="checkbox" class="operation-checkbox" value="division" />
+          <span>÷</span>
+        </label>
+
+        <label class="operation-option all-option">
+          <input type="checkbox" id="select-all-operations" />
+          <span>All</span>
+        </label>
+      </aside>
+
       <!-- Game over screen -->
       <section id="game-over" class="hidden">
         <h2>Game Over</h2>

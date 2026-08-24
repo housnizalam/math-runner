@@ -1,8 +1,8 @@
 "use strict";
 
-  // =========================//
-  //           Imports        //
-  // =========================//
+// =========================//
+//           Imports        //
+// =========================//
 import { generateQuestion, generateLimits } from "./questions.js";
 
 import {
@@ -15,9 +15,9 @@ import {
 
 import { GAME_MODES, MODE_STATE } from "./gameModes.js";
 
-  // =========================//
-  //       Game Elements      //
-  // =========================//
+// =========================//
+//       Game Elements      //
+// =========================//
 
 const player = document.querySelector("#player");
 
@@ -49,12 +49,20 @@ const road = document.querySelector("#road");
 
 const stopButton = document.querySelector("#stop-button");
 
-  // =========================//
-  //       Game Constants     //
-  // =========================//
+const operationCheckboxes = document.querySelectorAll(".operation-checkbox");
 
-const FAST_FORWARD_MULTIPLIER = 5;
-const FORCE_EXIT_MULTIPLIER = 8;
+const selectAllOperations = document.querySelector("#select-all-operations");
+
+const startOverlay = document.querySelector("#start-overlay");
+
+const startPlayButton = document.querySelector("#start-play-button");
+
+// =========================//
+//       Game Constants     //
+// =========================//
+
+const FAST_FORWARD_MULTIPLIER = 7;
+const FORCE_EXIT_MULTIPLIER = 10;
 const START_ROW_Y = -100;
 
 const gameState = {
@@ -65,22 +73,27 @@ const gameState = {
   level: 1,
 
   playerLane: 1,
-
   speed: 1,
+
+  selectedOperations: ["addition"],
 
   isFastForward: false,
   canFastForward: true,
 
+  isLevelKeyPressed: false,
+
   noGateSelected: false,
+
+  professionalMode: false,
 
   gateRows: [],
 };
 
-  // =========================//
-  //      Game Functions      //
-  // =========================//
+// =========================//
+//      Game Functions      //
+// =========================//
 
-  /*
+/*
 ==================================================
 FUNCTION INDEX
 ==================================================
@@ -112,6 +125,10 @@ updateGameModeUI()       → Updates UI for current mode
 setGameMode()            → Changes and applies game mode
 clearGateRows()          → Removes all existing gate rows
 createGateRow()          → Builds one dynamic gate row
+updateSelectedOperations → Updates selected operations
+handleOperationChange()  → Handles operation checkbox changes
+handleSelectAllOperations() → Handles select all operations checkbox
+updateOperationControls() → Enables/disables operation checkboxes
 ==================================================
 */
 
@@ -136,11 +153,16 @@ function updatePlayerPosition() {
 
 function handleKeyboard(event) {
   // Play / Pause
-  if (event.code === "Space") {
+  // Enter
+  if (event.code === "Enter") {
     event.preventDefault();
 
-    togglePause();
+    if (gameState.mode === GAME_MODES.GAME_OVER) {
+      restartGame();
+      return;
+    }
 
+    togglePause();
     return;
   }
 
@@ -151,6 +173,33 @@ function handleKeyboard(event) {
 
     return;
   }
+
+  // L key pressed
+  if (event.code === "KeyL") {
+    gameState.isLevelKeyPressed = true;
+    return;
+  }
+
+  // Change level only in START
+  if (
+    gameState.mode === GAME_MODES.START &&
+    gameState.isLevelKeyPressed
+  ) {
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+
+      changeLevel(1);
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+
+      changeLevel(-1);
+      return;
+    }
+  }
+
 
   // Game controls work only while playing
   if (gameState.mode !== GAME_MODES.PLAYING) {
@@ -181,7 +230,7 @@ function handleKeyboard(event) {
     return;
   }
 
-  if (event.key === "Enter") {
+  if (event.code === "Space") {
     event.preventDefault();
 
     gameState.noGateSelected = true;
@@ -201,6 +250,10 @@ function handleKeyUp(event) {
     gameState.isFastForward = false;
     gameState.canFastForward = true;
   }
+
+  if (event.code === "KeyL") {
+    gameState.isLevelKeyPressed = false;
+  }
 }
 
 export function initGame() {
@@ -213,9 +266,11 @@ export function initGame() {
 
 function bindEvents() {
   document.addEventListener("keydown", handleKeyboard);
+
   document.addEventListener("keyup", handleKeyUp);
 
   pauseButton.addEventListener("click", togglePause);
+
   restartButton.addEventListener("click", restartGame);
 
   levelUpButton.addEventListener("click", function () {
@@ -225,7 +280,16 @@ function bindEvents() {
   levelDownButton.addEventListener("click", function () {
     changeLevel(-1);
   });
+
   stopButton.addEventListener("click", stopGame);
+
+  operationCheckboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", handleOperationChange);
+  });
+
+  selectAllOperations.addEventListener("change", handleSelectAllOperations);
+
+  startPlayButton.addEventListener("click", togglePause);
 }
 
 function startRound() {
@@ -238,12 +302,12 @@ function startRound() {
   const question = generateQuestion(
     levelSettings.minNumber,
     levelSettings.maxNumber,
+    gameState.selectedOperations,
   );
 
   const limitsData = generateLimits(question.result);
 
-  questionElement.textContent = `${question.number1} + ${question.number2} = ?`;
-
+  questionElement.textContent = `${question.number1} ${question.operator} ${question.number2} = ?`;
 
   const rowElement = createGateRow(limitsData.limits);
 
@@ -512,22 +576,26 @@ function changeLevel(direction) {
 function updateGameModeUI() {
   switch (gameState.mode) {
     case GAME_MODES.START:
-      pauseButton.textContent = "▶";
-      pauseButton.setAttribute("aria-label", "Play");
+      startOverlay.classList.remove("hidden");
 
       pauseOverlay.classList.add("hidden");
       gameOverScreen.classList.add("hidden");
+
+      pauseButton.textContent = "▶";
+      pauseButton.setAttribute("aria-label", "Play");
 
       stopButton.disabled = true;
 
       break;
 
     case GAME_MODES.PLAYING:
-      pauseButton.textContent = "⏸";
-      pauseButton.setAttribute("aria-label", "Pause");
+      startOverlay.classList.add("hidden");
 
       pauseOverlay.classList.add("hidden");
       gameOverScreen.classList.add("hidden");
+
+      pauseButton.textContent = "⏸";
+      pauseButton.setAttribute("aria-label", "Pause");
 
       stopButton.disabled = false;
 
@@ -541,6 +609,7 @@ function updateGameModeUI() {
       gameOverScreen.classList.add("hidden");
 
       stopButton.disabled = false;
+      startOverlay.classList.add("hidden");
 
       break;
 
@@ -552,6 +621,7 @@ function updateGameModeUI() {
       gameOverScreen.classList.remove("hidden");
 
       stopButton.disabled = true;
+      startOverlay.classList.add("hidden");
 
       break;
   }
@@ -571,6 +641,8 @@ function setGameMode(mode) {
   updatePlayerPosition();
 
   updateLevelButtons();
+
+  updateOperationControls();
 }
 
 function clearGateRows() {
@@ -591,4 +663,68 @@ function stopGame() {
   setGameMode(GAME_MODES.START);
 
   startRound();
+}
+
+function updateSelectedOperations() {
+  const selectedOperations = [];
+
+  operationCheckboxes.forEach((checkbox) => {
+    if (checkbox.checked) {
+      selectedOperations.push(checkbox.value);
+    }
+  });
+
+  if (selectedOperations.length === 0) {
+    return;
+  }
+
+  gameState.selectedOperations = selectedOperations;
+}
+
+function handleOperationChange(event) {
+  const checkedOperations = [...operationCheckboxes].filter(
+    (checkbox) => checkbox.checked,
+  );
+
+  if (checkedOperations.length === 0) {
+    event.target.checked = true;
+    return;
+  }
+
+  gameState.selectedOperations = checkedOperations.map(
+    (checkbox) => checkbox.value,
+  );
+
+  selectAllOperations.checked =
+    checkedOperations.length === operationCheckboxes.length;
+  clearGateRows();
+  startRound();
+}
+
+function handleSelectAllOperations() {
+  const shouldSelectAll = selectAllOperations.checked;
+
+  operationCheckboxes.forEach((checkbox) => {
+    checkbox.checked = shouldSelectAll;
+  });
+
+  if (!shouldSelectAll) {
+    operationCheckboxes[0].checked = true;
+  }
+
+  gameState.selectedOperations = [...operationCheckboxes]
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => checkbox.value);
+  clearGateRows();
+  startRound();
+}
+
+function updateOperationControls() {
+  const canChangeOperations = gameState.mode === GAME_MODES.START;
+
+  operationCheckboxes.forEach((checkbox) => {
+    checkbox.disabled = !canChangeOperations;
+  });
+
+  selectAllOperations.disabled = !canChangeOperations;
 }

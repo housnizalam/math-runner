@@ -139,7 +139,16 @@
   --z-limit: 10;
   --z-player: 10;
   --z-game-over: 100;
+
+    /* =========================
+       Operations Bar
+    ========================= */
+
+  --operations-bar-width: 52px;
+
+  
 }
+
 
 /* =========================
    RESET
@@ -232,7 +241,7 @@ body {
 #road {
   position: relative;
 
-  width: 100%;
+  width: calc(100% - var(--operations-bar-width));
   height: calc(100% - var(--road-header-height));
 
   background: var(--color-road-bg);
@@ -601,6 +610,105 @@ body {
 
     background: currentColor;
 }
+
+/* =========================
+   OPERATIONS SIDEBAR
+========================= */
+
+#operation-controls {
+  position: absolute;
+
+  top: var(--road-header-height);
+  right: 0;
+  bottom: 0;
+
+  width: var(--operations-bar-width);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 14px;
+
+  padding-top: 22px;
+
+  background: var(--color-body-bg);
+  color: white;
+
+  z-index: 20;
+}
+
+.operation-option {
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 3px;
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.operation-option input {
+  margin: 0;
+}
+
+.operation-option span {
+  width: 15px;
+
+  font-size: 1rem;
+  font-weight: bold;
+
+  text-align: center;
+}
+
+.all-option {
+  margin-top: 8px;
+}
+
+/* =========================
+   Start Overlay
+========================= */
+
+#start-overlay {
+  position: absolute;
+
+  top: var(--road-header-height);
+  left: 0;
+  right: var(--operations-bar-width);
+  bottom: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(80, 80, 80, 0.55);
+
+  z-index: 150;
+}
+
+#start-play-button {
+  width: 120px;
+  height: 120px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.15);
+  color: #2196f3;
+
+  font-size: 5rem;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
 /* =========================
    UTILITIES
 ========================= */
