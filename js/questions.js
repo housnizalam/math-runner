@@ -151,3 +151,80 @@ export function generateLimits(result) {
     correctGate: correctGateCase === 3 ? null : correctGateCase,
   };
 }
+
+
+export function generateLimitExpression(limit, selectedOperations) {
+  const operationIndex = getRandomNumber(0, selectedOperations.length - 1);
+
+  const operation = selectedOperations[operationIndex];
+
+  switch (operation) {
+    case OPERATIONS.ADDITION: {
+      const range = Math.max(10, Math.abs(limit) * 2);
+
+      let number1 = getRandomNumber(-range, range);
+      let number2 = limit - number1;
+
+      if (number2 < 0) {
+        const temp = number1;
+        number1 = number2;
+        number2 = temp;
+      }
+
+      return `${number1} + ${number2}`;
+    }
+
+    case OPERATIONS.SUBTRACTION: {
+      const range = Math.max(10, Math.abs(limit) * 2);
+
+      const number2 = getRandomNumber(1, range);
+      const number1 = limit + number2;
+
+      return `${number1} − ${number2}`;
+    }
+
+    case OPERATIONS.MULTIPLICATION: {
+      if (limit === 0) {
+        const number1 = getRandomNumber(-20, 20);
+
+        return `${number1} × 0`;
+      }
+
+      const divisors = [];
+
+      const absoluteLimit = Math.abs(limit);
+
+      for (let i = 1; i <= absoluteLimit; i++) {
+        if (absoluteLimit % i === 0) {
+          divisors.push(i);
+        }
+      }
+
+      let number1 = divisors[getRandomNumber(0, divisors.length - 1)];
+
+      // Randomly make number1 negative
+      if (getRandomNumber(0, 1) === 1) {
+        number1 *= -1;
+      }
+
+      const number2 = limit / number1;
+
+      return `${number1} × ${number2}`;
+    }
+
+    case OPERATIONS.DIVISION: {
+      let divisor = getRandomNumber(2, 10);
+
+      if (getRandomNumber(0, 1) === 1) {
+        divisor *= -1;
+      }
+
+      const dividend = limit * divisor;
+
+      return `${dividend} ÷ ${divisor}`;
+    }
+
+    default:
+      throw new Error(`Unsupported operation: ${operation}`);
+  }
+}

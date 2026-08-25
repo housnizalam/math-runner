@@ -1,158 +1,212 @@
 :root {
-  /* =========================
-       COLORS
-    ========================= */
+  /* =========================================================
+     COLOR PALETTE
+     ========================================================= */
 
-  --color-body-bg: #202020;
+  --color-body-bg: #202020; /* Page background outside the game */
+  --color-game-bg: #d8d8d8; /* Base game container background */
+  --color-game-border: #111; /* Outer game border */
 
-  --color-game-bg: #d8d8d8;
-  --color-game-border: #111;
+  --color-hud-bg: #111; /* HUD background */
+  --color-hud-text: #fff; /* HUD text and default control color */
 
-  --color-hud-bg: #111;
-  --color-hud-text: white;
+  --color-question-bg: #eee; /* Question area background */
+  --color-question-border: #999; /* Divider under the question area */
 
-  --color-question-bg: #eeeeee;
-  --color-question-border: #999;
+  --color-road-bg: #555; /* Main road background */
+  --color-lane-line: rgba(255, 255, 255, 0.6); /* Dashed lane lines */
 
-  --color-road-bg: #555;
+  --color-gate-bg: #744c2c; /* Gate fill */
+  --color-gate-border: #3f2a18; /* Gate border */
+  --color-gate-text: #fff; /* Gate text */
 
-  --color-lane-line: rgba(255, 255, 255, 0.6);
+  --color-limit-bg: rgba(0, 0, 0, 0.75); /* Limit label background */
+  --color-limit-text: #fff; /* Limit label text */
 
-  --color-gate-bg: #744c2c;
-  --color-gate-border: #3f2a18;
-  --color-gate-text: white;
+  --color-player-bg: #1976d2; /* Player and main play accent */
+  --color-player-text: #fff; /* Player text */
 
-  --color-limit-text: white;
+  --color-stop: red; /* Stop icon */
+  --color-transparent: transparent; /* Shared transparent background */
 
-  --color-player-bg: #1976d2;
-  --color-player-text: white;
+  --color-pause-overlay-bg: #000; /* Pause overlay background */
+  --color-start-overlay-bg: rgba(80, 80, 80, 0.55); /* Start overlay veil */
+  --color-start-button-bg: rgba(
+    0,
+    0,
+    0,
+    0.15
+  ); /* Start play button background */
 
-  --color-game-over-bg: rgba(0, 0, 0, 0.85);
-  --color-game-over-text: white;
+  --color-game-over-bg: rgba(0, 0, 0, 0.85); /* Game-over overlay */
+  --color-game-over-text: #fff; /* Game-over text */
 
-  --color-limit-bg: rgba(0, 0, 0, 0.75);
+  --color-correct: #2ecc71; /* Correct-answer feedback color */
+  --color-wrong: #e53935; /* Wrong-answer feedback color */
 
-  /* =========================
-       FONT
-    ========================= */
+  --color-correct-flash: rgba(46, 204, 113, 0.28); /* Correct road flash */
+  --color-wrong-flash: rgba(229, 57, 53, 0.28); /* Wrong road flash */
 
-  --font-family-main: Arial, sans-serif;
+  /* =========================================================
+     TYPOGRAPHY
+     ========================================================= */
 
-  --font-size-hud: 1.2rem;
-  --font-size-question: 2.2rem;
-  --font-size-limit: 1.8rem;
-  --font-size-gate: 1rem;
-  --font-size-game-over-title: 3rem;
-  --font-size-game-over-text: 1.5rem;
-  --font-size-button: 1.2rem;
+  --font-family-main: Arial, sans-serif; /* Main game font */
 
-  --font-weight-bold: bold;
+  --font-size-hud: 1.2rem; /* Score, level, lives */
+  --font-size-question: 2.2rem; /* Main math question */
+  --font-size-limit: 1.8rem; /* Standard limit value */
+  --font-size-professional-limit: 1rem; /* Professional-mode limit expression */
+  --professional-limit-side-padding: 48px; /* Keeps wide Pro limits away from road edges */
+  --font-size-gate: 1rem; /* Gate label */
+  --font-size-level-arrow: 0.9rem; /* Level up/down arrows */
+  --font-size-control-icon: 1.9rem; /* HUD play/pause icon */
+  --font-size-operation-option: 1rem; /* Sidebar operation labels */
+  --font-size-start-play: 5rem; /* Large play icon on start overlay */
+  --font-size-game-over-title: 3rem; /* Game-over heading */
+  --font-size-game-over-text: 1.5rem; /* Game-over body text */
+  --font-size-button: 1.2rem; /* Standard action button text */
 
-  /* =========================
-       GAME SIZE
-    ========================= */
+  --font-weight-bold: bold; /* Shared bold weight */
 
-  --game-width: 900px;
-  --game-height: calc(100vh - 20px);
-  --game-border-width: 4px;
-  --game-border-radius: 12px;
+  /* =========================================================
+     GAME CONTAINER
+     ========================================================= */
 
-  --road-side-padding: 28px;
+  --game-width: 900px; /* Overall game width */
+  --game-height: calc(100vh - 20px); /* Overall game height */
+  --game-border-width: 4px; /* Outer game border thickness */
+  --game-border-radius: 12px; /* Outer game corner radius */
 
-  /* =========================
-       HUD
-    ========================= */
+  /* =========================================================
+     MAIN VERTICAL LAYOUT
+     ========================================================= */
 
-  --hud-height: 60px;
-  --hud-padding-horizontal: 30px;
+  --hud-height: 60px; /* HUD height */
+  --question-height: 90px; /* Question area height */
+  --question-border-width: 2px; /* Divider thickness below the question area */
+  --road-header-height: 150px; /* HUD + question height */
+  --operations-bar-width: 52px; /* Right sidebar width */
 
-  /* =========================
-       QUESTION
-    ========================= */
+  /* =========================================================
+     HUD
+     ========================================================= */
 
-  --question-height: 90px;
-  --question-border-width: 2px;
+  --hud-padding-horizontal: 30px; /* HUD left/right padding */
+  --game-controls-gap: 2px; /* Gap between Stop and Play/Pause */
+  --control-button-size: 42px; /* Stop and Play/Pause button size */
+  --control-button-radius: 8px; /* HUD control corner radius */
+  --stop-icon-size: 22px; /* Stop square size */
 
-  /* =========================
-       ROAD
-    ========================= */
+  --level-control-gap: 10px; /* Gap between Level label and picker */
+  --level-number-min-width: 24px; /* Prevent level number layout shift */
+  --level-number-margin-vertical: 2px; /* Vertical space around level number */
+  --disabled-control-opacity: 0.25; /* Disabled control opacity */
 
-  --road-header-height: 150px;
+  /* =========================================================
+     ROAD & LANES
+     ========================================================= */
 
-  /* =========================
-       LANE LINES
-    ========================= */
+  --road-side-padding: 28px; /* Inner left/right boundary of playable lanes */
+  --lane-count: 3; /* Number of playable lanes */
+  --lane-line-width: 3px; /* Dashed lane-line thickness */
 
-  --lane-line-width: 3px;
+  /* =========================================================
+     GATES & LIMITS
+     ========================================================= */
 
-  /* =========================
-       GATES
-    ========================= */
+  --gates-row-top: 28px; /* Vertical gate-row offset */
+  --gate-top: var(--gates-row-top); /* Gate vertical position inside a row */
+  --gate-height: 80px; /* Gate height */
+  --gate-width-percent: 88%; /* Gate width inside its lane */
+  --gate-border-width: 5px; /* Gate border thickness */
+  --gate-border-radius: 8px; /* Gate top corner radius */
 
-  --gates-top: 40px;
-
-  --gate-group-height: 90px;
-
-  --gate-height: 80px;
-  --gate-horizontal-margin: 10px;
-
-  --gate-border-width: 5px;
-  --gate-border-radius: 8px;
-
-  --limit-top: 18px;
-
-  --gates-row-top: 28px;
-
+  --limit-box-width: 52px; /* Standard limit label width */
+  --limit-box-professional-width: 82px; /* Professional limit-expression width */
+  --limit-box-height: 42px; /* Limit label height */
+  --limit-box-radius: 10px; /* Limit label corner radius */
   --limits-top: calc(
     var(--gates-row-top) + (var(--gate-height) - var(--limit-box-height)) / 2
-  );
-  --limit-box-width: 52px;
-  --limit-box-height: 42px;
-  --limit-box-radius: 10px;
+  ); /* Vertically centers limits against gates */
 
-  --gate-width-percent: 88%;
-  --gate-top: var(--gates-row-top);
+  /* =========================================================
+     PLAYER
+     ========================================================= */
 
-  /* =========================
-       PLAYER
-    ========================= */
+  --player-size: 80px; /* Player diameter */
+  --player-bottom: 180px; /* Distance from road bottom */
 
-  --player-size: 80px;
-  --player-bottom: 180px;
+  /* =========================================================
+     OPERATIONS SIDEBAR
+     ========================================================= */
 
-  /* =========================
-       GAME OVER
-    ========================= */
+  --operations-gap: 14px; /* Vertical gap between operation options */
+  --operations-padding-top: 22px; /* Top spacing inside the sidebar */
+  --operation-option-gap: 3px; /* Gap between checkbox and symbol */
+  --operation-label-width: 15px; /* Fixed symbol/label width */
+  --all-option-margin-top: 8px; /* Extra spacing before All */
+  --professional-option-margin-top: 38px; /* Visual separation before Pro */
 
-  --game-over-gap: 20px;
+  /* =========================================================
+     START OVERLAY
+     ========================================================= */
 
-  --restart-padding-vertical: 12px;
-  --restart-padding-horizontal: 30px;
-  --restart-border-radius: 8px;
+  --start-play-button-size: 120px; /* Large central play button diameter */
 
-  /* =========================
-       Z-INDEX
-    ========================= */
+  /* =========================================================
+     GAME OVER
+     ========================================================= */
 
-  --z-lane-lines: 1;
-  --z-gates: 5;
-  --z-limit: 10;
-  --z-player: 10;
-  --z-game-over: 100;
+  --game-over-gap: 20px; /* Spacing between game-over elements */
+  --restart-padding-vertical: 12px; /* Restart button vertical padding */
+  --restart-padding-horizontal: 30px; /* Restart button horizontal padding */
+  --restart-border-radius: 8px; /* Restart button corner radius */
 
-    /* =========================
-       Operations Bar
-    ========================= */
+  /* =========================================================
+     Z-INDEX LAYERS
+     ========================================================= */
 
-  --operations-bar-width: 52px;
+  --z-lane-lines: 1; /* Lane lines */
+  --z-gates: 5; /* Gate rows */
+  --z-limit: 10; /* Limit labels */
+  --z-player: 10; /* Player */
+  --z-operations: 20; /* Operations sidebar */
+  --z-game-over: 100; /* Game-over overlay */
+  --z-start-overlay: 150; /* Start overlay */
+  --z-pause-overlay: 200; /* Pause overlay */
 
-  
+  /* =========================================================
+     Visual effects
+     ========================================================= */
+
+  --feedback-flash-duration: 2000ms; /* Road correct/wrong flash duration */
+  --correct-player-duration: 280ms; /* Correct player glow duration */
+  --wrong-shake-duration: 280ms; /* Wrong player shake duration */
+  --wrong-shake-distance: 8px; /* Wrong player shake distance */
+
+  --level-up-duration: 3000ms; /* Level-up animation duration */
+
+  --level-up-text-size: 6rem; /* Main level-up text size */
+  --level-up-glow-size: 50px; /* Glow radius around level-up text */
+
+  --color-level-up: #ffd54f; /* Level-up highlight color */
+  --color-level-up-overlay: rgba(
+    0,
+    0,
+    0,
+    0.35
+  ); /* Temporary overlay background */
+
+  --game-over-animation-duration: 2000ms; /* Full game-over entrance duration */
+  --game-over-title-start-scale: 0.6; /* Initial title scale */
+  --game-over-title-end-scale: 1; /* Final title scale */
+  --game-over-pulse-duration: 1200ms; /* Continuous Game Over title pulse */
 }
 
-
-/* =========================
+/* =========================================================
    RESET
-========================= */
+   ========================================================= */
 
 * {
   box-sizing: border-box;
@@ -160,9 +214,9 @@
   padding: 0;
 }
 
-/* =========================
+/* =========================================================
    BODY
-========================= */
+   ========================================================= */
 
 body {
   min-height: 100vh;
@@ -172,13 +226,12 @@ body {
   align-items: center;
 
   font-family: var(--font-family-main);
-
   background: var(--color-body-bg);
 }
 
-/* =========================
-   GAME
-========================= */
+/* =========================================================
+   GAME CONTAINER
+   ========================================================= */
 
 #game {
   position: relative;
@@ -194,9 +247,9 @@ body {
   border-radius: var(--game-border-radius);
 }
 
-/* =========================
+/* =========================================================
    HUD
-========================= */
+   ========================================================= */
 
 #hud {
   height: var(--hud-height);
@@ -214,9 +267,103 @@ body {
   color: var(--color-hud-text);
 }
 
-/* =========================
-   QUESTION
-========================= */
+#level-control {
+  display: flex;
+  align-items: center;
+  gap: var(--level-control-gap);
+}
+
+.level-label {
+  font-size: var(--font-size-hud);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-hud-text);
+}
+
+.level-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+#level-number {
+  min-width: var(--level-number-min-width);
+  margin: var(--level-number-margin-vertical) 0;
+
+  font-size: var(--font-size-hud);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  color: var(--color-hud-text);
+}
+
+#level-up,
+#level-down {
+  padding: 0;
+
+  border: none;
+  background: var(--color-transparent);
+  color: var(--color-hud-text);
+
+  font-size: var(--font-size-level-arrow);
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+#level-up:disabled,
+#level-down:disabled {
+  opacity: var(--disabled-control-opacity);
+  cursor: default;
+}
+
+#game-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--game-controls-gap);
+}
+
+#pause-button,
+#stop-button {
+  width: var(--control-button-size);
+  height: var(--control-button-size);
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: none;
+  border-radius: var(--control-button-radius);
+
+  background: var(--color-transparent);
+  color: var(--color-hud-text);
+
+  cursor: pointer;
+}
+
+#pause-button {
+  font-size: var(--font-size-control-icon);
+  line-height: 1;
+  color: var(--color-player-bg);
+}
+
+.stop-icon {
+  display: block;
+
+  width: var(--stop-icon-size);
+  height: var(--stop-icon-size);
+
+  color: var(--color-stop);
+  background: currentColor;
+}
+
+/* =========================================================
+   QUESTION AREA
+   ========================================================= */
 
 #question-area {
   height: var(--question-height);
@@ -234,9 +381,9 @@ body {
   font-size: var(--font-size-question);
 }
 
-/* =========================
+/* =========================================================
    ROAD
-========================= */
+   ========================================================= */
 
 #road {
   position: relative;
@@ -244,14 +391,14 @@ body {
   width: calc(100% - var(--operations-bar-width));
   height: calc(100% - var(--road-header-height));
 
-  background: var(--color-road-bg);
-
   overflow: hidden;
+
+  background: var(--color-road-bg);
 }
 
-/* =========================
+/* =========================================================
    LANES
-========================= */
+   ========================================================= */
 
 #lanes {
   position: absolute;
@@ -260,7 +407,7 @@ body {
   height: 100%;
 
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--lane-count), 1fr);
 }
 
 #lane-lines {
@@ -287,13 +434,15 @@ body {
 
 .line-1 {
   left: calc(
-    var(--road-side-padding) + (100% - (var(--road-side-padding) * 2)) / 3
+    var(--road-side-padding) + (100% - (var(--road-side-padding) * 2)) /
+      var(--lane-count)
   );
 }
 
 .line-2 {
   left: calc(
-    var(--road-side-padding) + ((100% - (var(--road-side-padding) * 2)) / 3) * 2
+    var(--road-side-padding) +
+      ((100% - (var(--road-side-padding) * 2)) / var(--lane-count)) * 2
   );
 }
 
@@ -301,26 +450,66 @@ body {
   right: var(--road-side-padding);
 }
 
-/* =========================
-   GATES
-========================= */
+/* =========================================================
+   GATES & LIMITS
+   ========================================================= */
+
+#gate-rows {
+  position: absolute;
+  inset: 0;
+
+  z-index: var(--z-gates);
+
+  pointer-events: none;
+}
+
+.gate-row {
+  position: absolute;
+  inset: 0;
+}
 
 .gates {
   position: absolute;
+
   top: var(--gate-top);
   left: var(--road-side-padding);
+
   width: calc(100% - (var(--road-side-padding) * 2));
 
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--lane-count), 1fr);
 
   z-index: var(--z-gates);
+}
+
+.gate {
+  width: var(--gate-width-percent);
+  height: var(--gate-height);
+
+  margin: 0 auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: var(--font-size-gate);
+  font-weight: var(--font-weight-bold);
+
+  background: var(--color-gate-bg);
+  color: var(--color-gate-text);
+
+  border: var(--gate-border-width) solid var(--color-gate-border);
+  border-bottom: none;
+
+  border-radius: var(--gate-border-radius) var(--gate-border-radius) 0 0;
 }
 
 .limits {
   position: absolute;
   inset: 0;
+
   z-index: var(--z-limit);
+
   pointer-events: none;
 }
 
@@ -353,13 +542,15 @@ body {
 
 .limit-1 {
   left: calc(
-    var(--road-side-padding) + (100% - (var(--road-side-padding) * 2)) / 3
+    var(--road-side-padding) + (100% - (var(--road-side-padding) * 2)) /
+      var(--lane-count)
   );
 }
 
 .limit-2 {
   left: calc(
-    var(--road-side-padding) + ((100% - (var(--road-side-padding) * 2)) / 3) * 2
+    var(--road-side-padding) +
+      ((100% - (var(--road-side-padding) * 2)) / var(--lane-count)) * 2
   );
 }
 
@@ -367,44 +558,22 @@ body {
   left: calc(100% - var(--road-side-padding));
 }
 
-.gate {
-  width: var(--gate-width-percent);
-  height: var(--gate-height);
-
-  margin: 0 auto;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  font-size: var(--font-size-gate);
-  font-weight: var(--font-weight-bold);
-
-  background: var(--color-gate-bg);
-  color: var(--color-gate-text);
-
-  border: var(--gate-border-width) solid var(--color-gate-border);
-  border-bottom: none;
-
-  border-radius: var(--gate-border-radius) var(--gate-border-radius) 0 0;
+.limit-box.professional-limit {
+  width: var(--limit-box-professional-width);
+  font-size: var(--font-size-professional-limit);
 }
 
-#gate-rows {
-  position: absolute;
-  inset: 0;
-
-  z-index: var(--z-gates);
-  pointer-events: none;
+.limit-box.professional-limit.limit-0 {
+  left: var(--professional-limit-side-padding);
 }
 
-.gate-row {
-  position: absolute;
-  inset: 0;
+.limit-box.professional-limit.limit-3 {
+  left: calc(100% - var(--professional-limit-side-padding));
 }
 
-/* =========================
+/* =========================================================
    PLAYER
-========================= */
+   ========================================================= */
 
 #player {
   position: absolute;
@@ -412,14 +581,14 @@ body {
   bottom: var(--player-bottom);
   left: 50%;
 
-  transform: translateX(-50%);
-
   width: var(--player-size);
   height: var(--player-size);
 
   display: flex;
   justify-content: center;
   align-items: center;
+
+  transform: translateX(-50%);
 
   background: var(--color-player-bg);
   color: var(--color-player-text);
@@ -431,13 +600,141 @@ body {
   z-index: var(--z-player);
 }
 
-/* =========================
+/* =========================================================
+   OPERATIONS SIDEBAR
+   ========================================================= */
+
+#operation-controls {
+  position: absolute;
+
+  top: var(--road-header-height);
+  right: 0;
+  bottom: 0;
+
+  width: var(--operations-bar-width);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: var(--operations-gap);
+
+  padding-top: var(--operations-padding-top);
+
+  background: var(--color-body-bg);
+  color: var(--color-hud-text);
+
+  z-index: var(--z-operations);
+}
+
+.operation-option {
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: var(--operation-option-gap);
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.operation-option input {
+  margin: 0;
+}
+
+.operation-option span {
+  width: var(--operation-label-width);
+
+  font-size: var(--font-size-operation-option);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.all-option {
+  margin-top: var(--all-option-margin-top);
+}
+
+.professional-option {
+  margin-top: var(--professional-option-margin-top);
+}
+
+/* =========================================================
+   START OVERLAY
+   ========================================================= */
+
+#start-overlay {
+  position: absolute;
+
+  top: var(--road-header-height);
+  left: 0;
+  right: var(--operations-bar-width);
+  bottom: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: var(--color-start-overlay-bg);
+
+  z-index: var(--z-start-overlay);
+}
+
+#start-play-button {
+  width: var(--start-play-button-size);
+  height: var(--start-play-button-size);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--color-start-button-bg);
+  color: var(--color-player-bg);
+
+  font-size: var(--font-size-start-play);
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PAUSE OVERLAY
+   ========================================================= */
+
+#pause-overlay {
+  position: absolute;
+
+  top: var(--hud-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: var(--color-pause-overlay-bg);
+
+  z-index: var(--z-pause-overlay);
+}
+
+#pause-overlay img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+/* =========================================================
    GAME OVER
-========================= */
+   ========================================================= */
 
 #game-over {
   position: absolute;
-
   inset: 0;
 
   display: flex;
@@ -448,7 +745,6 @@ body {
   gap: var(--game-over-gap);
 
   background: var(--color-game-over-bg);
-
   color: var(--color-game-over-text);
 
   z-index: var(--z-game-over);
@@ -473,206 +769,27 @@ body {
   cursor: pointer;
 }
 
-/* =========================
-   Pause Overlay
-========================= */
+/* =========================================================
+   VISUAL EFFECTS
+   ========================================================= */
 
-#pause-overlay {
-  position: absolute;
-
-  top: var(--hud-height);
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background: #000;
-
-  z-index: 200;
+#road.feedback-correct {
+  animation: correct-road-flash var(--feedback-flash-duration) ease-out;
 }
 
-#pause-overlay img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+#road.feedback-wrong {
+  animation: wrong-road-flash var(--feedback-flash-duration) ease-out;
 }
 
-#pause-button {
-  width: 42px;
-  height: 42px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  background: rgba(0, 0, 0, 0);
-
-  font-size: 1.5rem;
-
-  border: none;
-  border-radius: 8px;
-
-  cursor: pointer;
+#player.feedback-correct {
+  animation: correct-player-feedback var(--correct-player-duration) ease-out;
 }
 
-#level-control {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+#player.feedback-wrong {
+  animation: wrong-player-feedback var(--wrong-shake-duration) ease-in-out;
 }
 
-.level-label {
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: white;
-}
-
-.level-picker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-#level-number {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: white;
-  min-width: 24px;
-  text-align: center;
-  margin: 2px 0;
-}
-
-#level-up,
-#level-down {
-  border: none;
-  background: transparent;
-  color: white;
-  cursor: pointer;
-  font-size: 0.9rem;
-  line-height: 1;
-  padding: 0;
-}
-
-#level-up:disabled,
-#level-down:disabled {
-  opacity: 0.25;
-  cursor: default;
-}
-
-#game-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-#game-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    gap: 2px;
-}
-
-#pause-button,
-#stop-button {
-    width: 42px;
-    height: 42px;
-
-    margin: 0;
-    padding: 0;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    border: none;
-    background: transparent;
-    color: white;
-
-    cursor: pointer;
-}
-
-#pause-button {
-    font-size: 1.9rem;
-    line-height: 1;
-}
-
-.stop-icon {
-    display: block;
-
-    width: 22px;
-    height: 22px;
-
-    background: currentColor;
-}
-
-/* =========================
-   OPERATIONS SIDEBAR
-========================= */
-
-#operation-controls {
-  position: absolute;
-
-  top: var(--road-header-height);
-  right: 0;
-  bottom: 0;
-
-  width: var(--operations-bar-width);
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  gap: 14px;
-
-  padding-top: 22px;
-
-  background: var(--color-body-bg);
-  color: white;
-
-  z-index: 20;
-}
-
-.operation-option {
-  width: 100%;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  gap: 3px;
-
-  cursor: pointer;
-  user-select: none;
-}
-
-.operation-option input {
-  margin: 0;
-}
-
-.operation-option span {
-  width: 15px;
-
-  font-size: 1rem;
-  font-weight: bold;
-
-  text-align: center;
-}
-
-.all-option {
-  margin-top: 8px;
-}
-
-/* =========================
-   Start Overlay
-========================= */
-
-#start-overlay {
+#level-up-overlay {
   position: absolute;
 
   top: var(--road-header-height);
@@ -684,34 +801,246 @@ body {
   justify-content: center;
   align-items: center;
 
-  background: rgba(80, 80, 80, 0.55);
+  background: var(--color-level-up-overlay);
 
-  z-index: 150;
+  z-index: 140;
+
+  pointer-events: none;
 }
 
-#start-play-button {
-  width: 120px;
-  height: 120px;
+#level-up-text {
+  font-size: var(--level-up-text-size);
+  font-weight: var(--font-weight-bold);
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  color: var(--color-level-up);
 
-  border: none;
-  border-radius: 50%;
-
-  background: rgba(0, 0, 0, 0.15);
-  color: #2196f3;
-
-  font-size: 5rem;
-  line-height: 1;
-
-  cursor: pointer;
+  text-shadow:
+    0 0 10px var(--color-level-up),
+    0 0 var(--level-up-glow-size) var(--color-level-up);
 }
 
-/* =========================
+#game-over.game-over-active {
+  animation: game-over-overlay-in var(--game-over-animation-duration) ease-out;
+}
+
+#game-over.game-over-active p {
+  animation: game-over-info-in var(--game-over-animation-duration) ease-out;
+}
+
+#game-over.game-over-active #restart-button {
+  animation: game-over-button-in var(--game-over-animation-duration) ease-out;
+}
+
+#game-over-pulse-text {
+  display: inline-block;
+
+  animation-name: game-over-pulse;
+  animation-duration: var(--game-over-pulse-duration);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes correct-road-flash {
+  0% {
+    box-shadow: inset 0 0 0 999px var(--color-correct-flash);
+  }
+
+  100% {
+    box-shadow: inset 0 0 0 999px transparent;
+  }
+}
+
+@keyframes wrong-road-flash {
+  0% {
+    box-shadow: inset 0 0 0 999px var(--color-wrong-flash);
+  }
+
+  100% {
+    box-shadow: inset 0 0 0 999px transparent;
+  }
+}
+
+@keyframes correct-player-feedback {
+  0% {
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+
+  50% {
+    transform: translateX(-50%) scale(1.12);
+
+    box-shadow:
+      0 0 8px 4px var(--color-correct),
+      0 0 25px 12px var(--color-correct);
+  }
+
+  100% {
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes wrong-player-feedback {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  25% {
+    transform: translateX(calc(-50% - var(--wrong-shake-distance)));
+  }
+
+  50% {
+    transform: translateX(calc(-50% + var(--wrong-shake-distance)));
+  }
+
+  75% {
+    transform: translateX(calc(-50% - var(--wrong-shake-distance)));
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+#level-up-overlay.level-up-active {
+  animation: level-up-overlay-animation var(--level-up-duration) ease-out;
+}
+
+#level-up-overlay.level-up-active #level-up-text {
+  animation: level-up-text-animation var(--level-up-duration) ease-out;
+}
+
+@keyframes level-up-overlay-animation {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes level-up-text-animation {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  25% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+
+  45% {
+    transform: scale(1);
+  }
+
+  75% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes game-over-title-pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes game-over-overlay-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes game-over-info-in {
+  0%,
+  35% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes game-over-button-in {
+  0%,
+  55% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes game-over-title-pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes game-over-pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Reserved for @keyframes and animation utility classes. */
+
+/* =========================================================
    UTILITIES
-========================= */
+   ========================================================= */
 
 .hidden {
   display: none !important;

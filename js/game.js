@@ -15,6 +15,16 @@ import {
 
 import { GAME_MODES, MODE_STATE } from "./gameModes.js";
 
+import { generateLimitExpression } from "./questions.js";
+
+import {
+  playCorrectSound,
+  playWrongSound,
+  playLevelUpSound,
+  playGameOverSound,
+  playStartSound,
+  playButtonClickSound,
+} from "./audio.js";
 // =========================//
 //       Game Elements      //
 // =========================//
@@ -57,12 +67,18 @@ const startOverlay = document.querySelector("#start-overlay");
 
 const startPlayButton = document.querySelector("#start-play-button");
 
+const professionalModeCheckbox = document.querySelector("#professional-mode");
+
+const levelUpOverlay = document.querySelector("#level-up-overlay");
+
+const levelUpText = document.querySelector("#level-up-text");
+
 // =========================//
 //       Game Constants     //
 // =========================//
 
-const FAST_FORWARD_MULTIPLIER = 7;
-const FORCE_EXIT_MULTIPLIER = 10;
+const FAST_FORWARD_MULTIPLIER = 12;
+const FORCE_EXIT_MULTIPLIER = 12;
 const START_ROW_Y = -100;
 
 const gameState = {
@@ -82,6 +98,8 @@ const gameState = {
 
   isLevelKeyPressed: false,
 
+  isLevelUpActive: false,
+
   noGateSelected: false,
 
   professionalMode: false,
@@ -98,37 +116,41 @@ const gameState = {
 FUNCTION INDEX
 ==================================================
 
-updatePlayerPosition()   → Moves player to selected lane
-handleKeyboard()         → Handles keyboard controls
-handleKeyUp()            → Ends fast-forward on key release
-initGame()               → Initializes game and events
-
-startRound()             → Creates a new question and gate row
-evaluateAnswer()         → Checks player's answer
-moveGateRows()           → Moves all active gate rows
-gameLoop()               → Main animation loop
-
-hasRowReachedPlayer()    → Detects gate/player meeting
-finishRound()            → Updates score, lives and next round
-checkGateRows()          → Finds rows ready for evaluation
-removeExitedRows()       → Removes rows outside the road
-
-togglePause()            → Switches play/pause modes
-stopGame()               → Returns game to START mode
-restartGame()            → Restarts current level
-
-changeLevel()            → Changes selected unlocked level
-updateLevelButtons()     → Enables/disables level arrows
-
-updateHUD()              → Updates Score / Level / Lives
-updateGameModeUI()       → Updates UI for current mode
-setGameMode()            → Changes and applies game mode
-clearGateRows()          → Removes all existing gate rows
-createGateRow()          → Builds one dynamic gate row
-updateSelectedOperations → Updates selected operations
-handleOperationChange()  → Handles operation checkbox changes
-handleSelectAllOperations() → Handles select all operations checkbox
-updateOperationControls() → Enables/disables operation checkboxes
+updatePlayerPosition()          → Moves player to selected lane
+handleKeyboard()                → Handles keyboard controls
+handleKeyUp()                   → Ends fast-forward on key release
+initGame()                      → Initializes game and events
+       
+startRound()                    → Creates a new question and gate row
+evaluateAnswer()                → Checks player's answer
+moveGateRows()                  → Moves all active gate rows
+gameLoop()                      → Main animation loop
+       
+hasRowReachedPlayer()           → Detects gate/player meeting
+finishRound()                   → Updates score, lives and next round
+checkGateRows()                 → Finds rows ready for evaluation
+removeExitedRows()              → Removes rows outside the road
+       
+togglePause()                   → Switches play/pause modes
+stopGame()                      → Returns game to START mode
+restartGame()                   → Restarts current level
+       
+changeLevel()                   → Changes selected unlocked level
+updateLevelButtons()            → Enables/disables level arrows
+       
+updateHUD()                     → Updates Score / Level / Lives
+updateGameModeUI()              → Updates UI for current mode
+setGameMode()                   → Changes and applies game mode
+clearGateRows()                 → Removes all existing gate rows
+createGateRow()                 → Builds one dynamic gate row
+updateSelectedOperations        → Updates selected operations
+handleOperationChange()         → Handles operation checkbox changes
+handleSelectAllOperations()     → Handles select all operations checkbox
+updateOperationControls()       → Enables/disables operation checkboxes
+handleProfessionalModeChange()  → Handles professional mode checkbox changes
+showAnswerFeedback()            → Shows visual feedback for correct/wrong answer
+showLevelUpEffect()             → Shows level up animation
+showGameOverEffect()            → Shows game over animation
 ==================================================
 */
 
@@ -168,7 +190,7 @@ function handleKeyboard(event) {
 
   if (event.key === "Escape") {
     event.preventDefault();
-
+playButtonClickSound();
     stopGame();
 
     return;
@@ -181,13 +203,11 @@ function handleKeyboard(event) {
   }
 
   // Change level only in START
-  if (
-    gameState.mode === GAME_MODES.START &&
-    gameState.isLevelKeyPressed
-  ) {
+  if (gameState.mode === GAME_MODES.START && gameState.isLevelKeyPressed) {
+    playButtonClickSound();
     if (event.key === "ArrowUp") {
       event.preventDefault();
-
+     
       changeLevel(1);
       return;
     }
@@ -200,7 +220,6 @@ function handleKeyboard(event) {
     }
   }
 
-
   // Game controls work only while playing
   if (gameState.mode !== GAME_MODES.PLAYING) {
     return;
@@ -210,6 +229,7 @@ function handleKeyboard(event) {
     if (gameState.playerLane > 0) {
       gameState.playerLane--;
       updatePlayerPosition();
+      playButtonClickSound();
     }
   }
 
@@ -217,14 +237,15 @@ function handleKeyboard(event) {
     if (gameState.playerLane < 2) {
       gameState.playerLane++;
       updatePlayerPosition();
+      playButtonClickSound();
     }
   }
 
   if (event.key === "ArrowDown") {
     event.preventDefault();
-
+    
     if (gameState.canFastForward) {
-      gameState.isFastForward = true;
+        gameState.isFastForward = true;
     }
 
     return;
@@ -290,6 +311,11 @@ function bindEvents() {
   selectAllOperations.addEventListener("change", handleSelectAllOperations);
 
   startPlayButton.addEventListener("click", togglePause);
+
+  professionalModeCheckbox.addEventListener(
+    "change",
+    handleProfessionalModeChange,
+  );
 }
 
 function startRound() {
@@ -363,11 +389,11 @@ function gameLoop() {
     return;
   }
 
-  moveGateRows();
-
-  checkGateRows();
-
-  removeExitedRows();
+  if (!gameState.isLevelUpActive) {
+    moveGateRows();
+    checkGateRows();
+    removeExitedRows();
+  }
 
   requestAnimationFrame(gameLoop);
 }
@@ -383,6 +409,7 @@ function hasRowReachedPlayer(row) {
 }
 
 function togglePause() {
+  playStartSound();
   if (gameState.mode === GAME_MODES.START) {
     setGameMode(GAME_MODES.PLAYING);
 
@@ -428,8 +455,16 @@ function createGateRow(limits) {
 
     limitElement.classList.add("limit-box", `limit-${index}`);
 
-    limitElement.textContent = limit;
+    if (gameState.professionalMode) {
+      limitElement.textContent = generateLimitExpression(
+        limit,
+        gameState.selectedOperations,
+      );
 
+      limitElement.classList.add("professional-limit");
+    } else {
+      limitElement.textContent = limit;
+    }
     limitsContainer.append(limitElement);
   });
 
@@ -465,9 +500,11 @@ function finishRound(row) {
   gameState.canFastForward = false;
 
   const isCorrect = evaluateAnswer(row);
+  showAnswerFeedback(isCorrect);
 
   if (isCorrect) {
     gameState.score += 1;
+    playCorrectSound();
 
     if (gameState.score >= POINTS_PER_LEVEL) {
       gameState.score = 0;
@@ -478,10 +515,16 @@ function finishRound(row) {
         gameState.lives += 1;
 
         saveUnlockedLevel(gameState.level);
+
+        showLevelUpEffect(gameState.level);
+        playLevelUpSound();
       }
     }
   } else {
     gameState.lives--;
+    if (gameState.lives >= 0) {
+      playWrongSound();
+    }
   }
 
   updateHUD();
@@ -528,6 +571,8 @@ function gameOver() {
   finalLevelElement.textContent = gameState.level;
 
   setGameMode(GAME_MODES.GAME_OVER);
+  showGameOverEffect();
+  playGameOverSound();
 }
 
 function restartGame() {
@@ -727,4 +772,92 @@ function updateOperationControls() {
   });
 
   selectAllOperations.disabled = !canChangeOperations;
+
+  professionalModeCheckbox.disabled = !canChangeOperations;
+}
+
+function handleProfessionalModeChange() {
+  if (gameState.mode !== GAME_MODES.START) {
+    return;
+  }
+
+  gameState.professionalMode = professionalModeCheckbox.checked;
+
+  clearGateRows();
+  startRound();
+}
+
+function showAnswerFeedback(isCorrect) {
+  const className = isCorrect ? "feedback-correct" : "feedback-wrong";
+
+  road.classList.remove("feedback-correct", "feedback-wrong");
+
+  player.classList.remove("feedback-correct", "feedback-wrong");
+
+  // Restart animations if feedback happens again quickly
+  void road.offsetWidth;
+  void player.offsetWidth;
+
+  road.classList.add(className);
+  player.classList.add(className);
+
+  road.addEventListener(
+    "animationend",
+    () => {
+      road.classList.remove(className);
+    },
+    { once: true },
+  );
+
+  player.addEventListener(
+    "animationend",
+    () => {
+      player.classList.remove(className);
+    },
+    { once: true },
+  );
+}
+
+function showLevelUpEffect(level) {
+  gameState.isLevelUpActive = true;
+
+  levelUpText.textContent = `LEVEL ${level}`;
+
+  levelUpOverlay.classList.remove("hidden", "level-up-active");
+
+  void levelUpOverlay.offsetWidth;
+
+  levelUpOverlay.classList.add("level-up-active");
+
+  levelUpOverlay.addEventListener(
+    "animationend",
+    () => {
+      levelUpOverlay.classList.remove("level-up-active");
+
+      levelUpOverlay.classList.add("hidden");
+
+      gameState.isLevelUpActive = false;
+    },
+    { once: true },
+  );
+}
+
+function showGameOverEffect() {
+  gameOverScreen.classList.remove("game-over-active");
+
+  void gameOverScreen.offsetWidth;
+
+  gameOverScreen.classList.add("game-over-active");
+
+  gameOverScreen.addEventListener(
+    "animationend",
+    (event) => {
+      if (event.target !== gameOverScreen) {
+        return;
+      }
+
+      gameOverScreen.classList.remove("game-over-active");
+    },
+    { once: true },
+  );
 }

@@ -107,12 +107,21 @@
           <input type="checkbox" id="select-all-operations" />
           <span>All</span>
         </label>
+        <label class="operation-option professional-option">
+          <input type="checkbox" id="professional-mode" />
+          <span>Pro</span>
+        </label>
       </aside>
+
+      <div id="level-up-overlay" class="hidden">
+        <div id="level-up-text">LEVEL 2</div>
+      </div>
 
       <!-- Game over screen -->
       <section id="game-over" class="hidden">
-        <h2>Game Over</h2>
-
+        <h2>
+          <span id="game-over-pulse-text">Game Over</span>
+        </h2>
         <p>
           Level:
           <span id="final-level"> 0 </span>
