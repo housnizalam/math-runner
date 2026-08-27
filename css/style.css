@@ -93,6 +93,7 @@
 
   --player-size: 100px; /* Player diameter */
   --player-bottom: 180px; /* Distance from road bottom */
+  --player-lane-transition-duration: 180ms;
 
   /* =========================================================
      OPERATIONS SIDEBAR
@@ -236,7 +237,7 @@ input {
   display: flex;
   align-items: center;
 
-  gap: 14px;
+  gap: 8px;
 }
 
 .hud-item {
@@ -321,7 +322,7 @@ input {
 
   border: none;
   background: var(--color-transparent);
-  color: var(--color-hud-text);
+  color: var(--color-limit-text);
 
   font-size: var(--font-size-level-arrow);
   line-height: 1;
@@ -626,51 +627,6 @@ input {
   left: 90%;
 }
 
-#professional-limits {
-  position: absolute;
-
-  top: 25%;
-  left: 0;
-
-  width: calc(100% - var(--operations-bar-width));
-  box-sizing: border-box;
-
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-
-  padding: 0 24px;
-
-  z-index: var(--z-limit);
-
-  pointer-events: none;
-}
-
-.professional-limit-fixed {
-  width: 100%;
-  min-width: 0;
-
-  box-sizing: border-box;
-
-  padding: 10px 8px;
-
-  font-size: 1.7rem;
-  font-weight: var(--font-weight-bold);
-
-  color: var(--color-limit-text);
-
-  text-align: center;
-  white-space: nowrap;
-
-  background: rgba(10, 14, 20, 0.78);
-
-  border: 1px solid rgba(120, 180, 220, 0.75);
-  border-radius: 10px;
-
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.35),
-    0 0 8px rgba(80, 160, 220, 0.18);
-}
 /* =========================================================
    PLAYER
    ========================================================= */
@@ -688,7 +644,7 @@ input {
 
   z-index: var(--z-player);
 
-  transition: transform 180ms linear !important;
+  transition: transform var(--player-lane-transition-duration) linear !important;
 }
 
 .player-image {
@@ -747,9 +703,9 @@ input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 3px;
 
-  padding-top: 128px;
+  padding-top: 60px;
   padding-bottom: 20px;
   color: var(--color-limit-text);
   z-index: 90;
@@ -785,7 +741,8 @@ input {
   text-align: center;
 }
 
-.operation-option input[type="checkbox"] {
+.operation-option input[type="checkbox"],
+.operation-option input[type="radio"] {
   appearance: none;
   -webkit-appearance: none;
 
@@ -820,7 +777,8 @@ input {
     inset 0 0 6px rgba(80, 160, 255, 0.12);
 }
 
-.operation-option input[type="checkbox"]:checked {
+.operation-option input[type="checkbox"]:checked,
+.operation-option input[type="radio"]:checked {
   background: rgba(45, 130, 220, 0.85);
 
   border-color: rgba(130, 210, 255, 1);
@@ -846,7 +804,8 @@ input {
   color: white;
 }
 
-.operation-option input[type="checkbox"]:active {
+.operation-option input[type="checkbox"]:active,
+.operation-option input[type="radio"]:active {
   transform: scale(0.9);
 }
 
@@ -854,12 +813,42 @@ input {
   margin-top: var(--all-option-margin-top);
 }
 
-.professional-option {
+.answer-mode-options {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 10px;
+
   margin-top: var(--professional-option-margin-top);
 
-  border-top: 1px solid rgba(120, 180, 220, 0.18);
-
   padding-top: 12px;
+
+  border-top: 1px solid rgba(120, 180, 220, 0.18);
+}
+
+.operation-option input[type="radio"] {
+  border-radius: 50%;
+}
+
+.operation-option input[type="radio"]:checked::after {
+  content: "";
+
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background: white;
 }
 
 /* =========================================================
@@ -923,8 +912,6 @@ input {
 
   filter: brightness(1.2) drop-shadow(0 0 4px rgba(80, 180, 255, 0.9))
     drop-shadow(0 0 8px rgba(60, 160, 255, 0.65));
-
-
 }
 
 .start-go-sequence {
@@ -1198,7 +1185,7 @@ input {
 }
 
 #player.feedback-wrong .player-image {
-  animation: player-wrong-flash 600ms ease-out;
+  animation: player-wrong-flash 650ms ease-out;
 }
 /* =========================================================
    ANIMATIONS

@@ -101,9 +101,6 @@
         <!-- Dynamic gate rows -->
         <div id="gate-rows"></div>
 
-        <!-- Professional limits -->
-        <div id="professional-limits"></div>
-
         <!-- Lanes -->
         <div id="lanes">
           <div class="lane" data-lane="0"></div>
@@ -124,7 +121,7 @@
       <!-- Start screen -->
       <div id="start-overlay">
         <button id="start-play-button" type="button" aria-label="Start game">
-          <span class="start-play-icon">Ready</span>
+          <span class="start-play-icon">Ready !</span>
 
           <div class="start-go-sequence">
             <span class="start-go start-go-large">go</span>
@@ -174,10 +171,35 @@
           <span>All</span>
         </label>
 
-        <label class="operation-option professional-option">
-          <input type="checkbox" id="professional-mode" />
-          <span>Pro</span>
-        </label>
+<div class="answer-mode-options">
+  <label class="operation-option answer-mode-option">
+    <input
+      type="radio"
+      name="answer-mode"
+      value="limit"
+      checked
+    />
+    <span>Lim</span>
+  </label>
+
+  <label class="operation-option answer-mode-option">
+    <input
+      type="radio"
+      name="answer-mode"
+      value="easy"
+    />
+    <span>Ezy</span>
+  </label>
+
+  <label class="operation-option answer-mode-option">
+    <input
+      type="radio"
+      name="answer-mode"
+      value="pro"
+    />
+    <span>Pro</span>
+  </label>
+</div>
       </aside>
 
       <!-- Level-up screen -->

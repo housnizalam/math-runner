@@ -202,7 +202,7 @@ export function generateProfessionalQuestion(
   return question;
 }
 
-export function generateProfessionalOptions(result, selectedOperations) {
+function generateOptionValues(result, selectedOperations) {
   const onlyMultiplication =
     selectedOperations.length === 1 &&
     selectedOperations[0] === OPERATIONS.MULTIPLICATION;
@@ -236,13 +236,25 @@ export function generateProfessionalOptions(result, selectedOperations) {
     optionValues.push(wrongValue);
   }
 
+  return {
+    optionValues,
+    correctGate: correctGateCase === 3 ? null : correctGateCase,
+  };
+}
+
+export function generateProfessionalOptions(result, selectedOperations) {
+  const { optionValues, correctGate } = generateOptionValues(
+    result,
+    selectedOperations,
+  );
+
   const options = optionValues.map((value) =>
     generateExpressionForValue(value, selectedOperations),
   );
 
   return {
     options,
-    correctGate: correctGateCase === 3 ? null : correctGateCase,
+    correctGate,
   };
 }
 
@@ -340,4 +352,16 @@ function generateExpressionForValue(value, selectedOperations) {
     default:
       throw new Error(`Unsupported operation: ${operation}`);
   }
+}
+
+export function generateEasyOptions(result, selectedOperations) {
+  const { optionValues, correctGate } = generateOptionValues(
+    result,
+    selectedOperations,
+  );
+
+  return {
+    options: optionValues,
+    correctGate,
+  };
 }

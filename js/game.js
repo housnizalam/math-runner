@@ -7,6 +7,7 @@ import {
   generateQuestion,
   generateProfessionalQuestion,
   generateLimits,
+  generateEasyOptions,
   generateProfessionalOptions,
 } from "./questions.js";
 
@@ -71,7 +72,7 @@ const startOverlay = document.querySelector("#start-overlay");
 
 const startPlayButton = document.querySelector("#start-play-button");
 
-const professionalModeCheckbox = document.querySelector("#professional-mode");
+const answerModeRadios = document.querySelectorAll('input[name="answer-mode"]');
 
 const levelUpOverlay = document.querySelector("#level-up-overlay");
 
@@ -100,6 +101,12 @@ const PLAYER_LANE_SPREAD = 1.1;
 const ROUND_TRANSITION_DELAY = 200;
 let isMuted = false;
 
+const ANSWER_MODES = {
+  LIMIT: "limit",
+  EASY: "easy",
+  PRO: "pro",
+};
+
 const gameState = {
   mode: GAME_MODES.START,
 
@@ -121,7 +128,7 @@ const gameState = {
 
   noGateSelected: false,
 
-  professionalMode: false,
+  answerMode: ANSWER_MODES.LIMIT,
 
   gateRows: [],
 };
@@ -182,7 +189,6 @@ createGateRow()                 → Builds one dynamic gate row
 handleOperationChange()         → Handles operation checkbox changes
 handleSelectAllOperations()     → Handles Select All checkbox
 updateOperationControls()       → Enables/disables operation controls
-handleProfessionalModeChange()  → Handles Professional Mode
 
 showAnswerFeedback()            → Shows correct/wrong feedback
 showLevelUpEffect()             → Shows level-up animation
@@ -377,10 +383,16 @@ function bindEvents() {
 
   startPlayButton.addEventListener("click", togglePause);
 
-  professionalModeCheckbox.addEventListener(
-    "change",
-    handleProfessionalModeChange,
-  );
+  answerModeRadios.forEach((radio) => {
+    radio.addEventListener("change", handleAnswerModeChange);
+  });
+}
+
+function handleAnswerModeChange(event) {
+  gameState.answerMode = event.target.value;
+
+  clearGateRows();
+  startRound();
 }
 
 function startRound() {
@@ -390,7 +402,11 @@ function startRound() {
 
   gameState.speed = levelSettings.speed;
 
-  const question = gameState.professionalMode
+  const usesDirectGateAnswers =
+    gameState.answerMode === ANSWER_MODES.EASY ||
+    gameState.answerMode === ANSWER_MODES.PRO;
+
+  const question = usesDirectGateAnswers
     ? generateProfessionalQuestion(
         levelSettings.minNumber,
         levelSettings.maxNumber,
@@ -402,11 +418,20 @@ function startRound() {
         gameState.selectedOperations,
       );
 
-  const roundData = gameState.professionalMode
-    ? generateProfessionalOptions(question.result, gameState.selectedOperations)
-    : generateLimits(question.result);
+  let roundData;
 
-  if (gameState.professionalMode) {
+  if (gameState.answerMode === ANSWER_MODES.PRO) {
+    roundData = generateProfessionalOptions(
+      question.result,
+      gameState.selectedOperations,
+    );
+  } else if (gameState.answerMode === ANSWER_MODES.EASY) {
+    roundData = generateEasyOptions(
+      question.result,
+      gameState.selectedOperations,
+    );
+  } else {
+    roundData = generateLimits(question.result);
   }
 
   questionElement.textContent = `${question.number1} ${question.operator} ${question.number2} = ?`;
@@ -515,10 +540,10 @@ function createGateRow(roundData) {
   row.classList.add("gate-row");
 
   // =========================
-  // NORMAL LIMITS
+  // LIMIT MODE
   // =========================
 
-  if (!gameState.professionalMode) {
+  if (gameState.answerMode === ANSWER_MODES.LIMIT) {
     const limitsContainer = document.createElement("div");
 
     limitsContainer.classList.add("limits");
@@ -557,7 +582,8 @@ function createGateRow(roundData) {
 
     gate.append(gateImage);
 
-    if (gameState.professionalMode) {
+    // EASY + PRO
+    if (gameState.answerMode !== ANSWER_MODES.LIMIT) {
       const optionElement = document.createElement("div");
 
       optionElement.classList.add("professional-gate-option");
@@ -566,6 +592,7 @@ function createGateRow(roundData) {
 
       gate.append(optionElement);
     }
+
     gatesContainer.append(gate);
   }
 
@@ -697,10 +724,11 @@ function updateGameModeUI() {
   questionElement.style.visibility = "visible";
 
   document
-    .querySelectorAll(".limits, #professional-limits")
+    .querySelectorAll(".limits, .professional-gate-option")
     .forEach((element) => {
       element.style.visibility = "visible";
     });
+
   switch (gameState.mode) {
     case GAME_MODES.START:
       startOverlay.classList.remove("hidden");
@@ -741,7 +769,7 @@ function updateGameModeUI() {
       questionElement.style.visibility = "hidden";
 
       document
-        .querySelectorAll(".limits, #professional-limits")
+        .querySelectorAll(".limits, .professional-gate-option")
         .forEach((element) => {
           element.style.visibility = "hidden";
         });
@@ -849,18 +877,9 @@ function updateOperationControls() {
 
   selectAllOperations.disabled = !canChangeOperations;
 
-  professionalModeCheckbox.disabled = !canChangeOperations;
-}
-
-function handleProfessionalModeChange() {
-  if (gameState.mode !== GAME_MODES.START) {
-    return;
-  }
-
-  gameState.professionalMode = professionalModeCheckbox.checked;
-
-  clearGateRows();
-  startRound();
+  answerModeRadios.forEach((radio) => {
+    radio.disabled = !canChangeOperations;
+  });
 }
 
 function showAnswerFeedback(isCorrect) {
@@ -940,11 +959,7 @@ function updateGateRowPerspective(row) {
 
   const progressRatio = clampedProgress / PERSPECTIVE_CONFIG.triggerProgress;
 
-  const professionalOptionFontSize = lerp(
-  1,
-  4,
-  progressRatio,
-);
+  const professionalOptionFontSize = lerp(1, 4, progressRatio);
 
   // =========================
   // VERTICAL POSITION
@@ -1000,9 +1015,9 @@ function updateGateRowPerspective(row) {
   row.element.style.setProperty("--row-scale", scale);
 
   row.element.style.setProperty(
-  "--professional-option-font-size",
-  `${professionalOptionFontSize}rem`,
-);
+    "--professional-option-font-size",
+    `${professionalOptionFontSize}rem`,
+  );
 
   row.element.style.left = "50%";
   row.element.style.width = `${width}px`;
