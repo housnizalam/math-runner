@@ -3,7 +3,10 @@
 // =========================//
 //           Imports        //
 // =========================//
-import { generateQuestion, generateLimits } from "./questions.js";
+import {
+  generateQuestion,
+  generateLimits,
+} from "./questions.js";
 
 import {
   POINTS_PER_LEVEL,
@@ -15,8 +18,6 @@ import {
 
 import { GAME_MODES, MODE_STATE } from "./gameModes.js";
 
-import { generateLimitExpression } from "./questions.js";
-
 import {
   playCorrectSound,
   playWrongSound,
@@ -24,6 +25,7 @@ import {
   playGameOverSound,
   playStartSound,
   playButtonClickSound,
+  setMuted,
 } from "./audio.js";
 // =========================//
 //       Game Elements      //
@@ -73,13 +75,28 @@ const levelUpOverlay = document.querySelector("#level-up-overlay");
 
 const levelUpText = document.querySelector("#level-up-text");
 
+const professionalLimitsContainer = document.querySelector(
+  "#professional-limits",
+);
+
+const playerImage = document.querySelector(".player-image");
+
+const muteButton = document.querySelector("#mute-button");
+
+const soundOnIcon = document.querySelector("#sound-on-icon");
+
+const soundOffIcon = document.querySelector("#sound-off-icon");
+
 // =========================//
 //       Game Constants     //
 // =========================//
 
 const FAST_FORWARD_MULTIPLIER = 12;
 const FORCE_EXIT_MULTIPLIER = 12;
-const START_ROW_Y = -100;
+const GATE_PROGRESS_SPEED = 0.002;
+const PLAYER_LANE_SPREAD = 1.1;
+const ROUND_TRANSITION_DELAY = 200;
+let isMuted = false;
 
 const gameState = {
   mode: GAME_MODES.START,
@@ -107,6 +124,21 @@ const gameState = {
   gateRows: [],
 };
 
+const PERSPECTIVE_CONFIG = {
+  startTop: -10, // row starts slightly hidden under question area
+  playerTop: 520, // approximate position where row reaches player zone
+  exitTop: 760, // row continues until it leaves the screen
+
+  startWidthRatio: 0.16, // width of row at the top of the road
+  endWidthRatio: 1.4, // width near player
+
+  startScale: 0.45, // row is small at top
+  endScale: 1.1, // row becomes larger near player
+
+  triggerProgress: 1.0, // when row reaches player and gets evaluated
+  exitProgress: 1.35, // when row is fully out and removed
+};
+
 // =========================//
 //      Game Functions      //
 // =========================//
@@ -118,64 +150,77 @@ FUNCTION INDEX
 
 updatePlayerPosition()          → Moves player to selected lane
 handleKeyboard()                → Handles keyboard controls
-handleKeyUp()                   → Ends fast-forward on key release
+handleKeyUp()                   → Handles key releases
 initGame()                      → Initializes game and events
-       
+bindEvents()                    → Registers event listeners
+
 startRound()                    → Creates a new question and gate row
 evaluateAnswer()                → Checks player's answer
-moveGateRows()                  → Moves all active gate rows
+moveGateRows()                  → Moves active gate rows
 gameLoop()                      → Main animation loop
-       
 hasRowReachedPlayer()           → Detects gate/player meeting
-finishRound()                   → Updates score, lives and next round
+finishRound()                   → Updates score/lives and starts next round
 checkGateRows()                 → Finds rows ready for evaluation
 removeExitedRows()              → Removes rows outside the road
-       
-togglePause()                   → Switches play/pause modes
+
+togglePause()                   → Switches Start / Playing / Paused
 stopGame()                      → Returns game to START mode
-restartGame()                   → Restarts current level
-       
+gameOver()                      → Activates GAME OVER mode
+restartGame()                   → Restarts the game
+
 changeLevel()                   → Changes selected unlocked level
 updateLevelButtons()            → Enables/disables level arrows
-       
+
 updateHUD()                     → Updates Score / Level / Lives
 updateGameModeUI()              → Updates UI for current mode
 setGameMode()                   → Changes and applies game mode
 clearGateRows()                 → Removes all existing gate rows
 createGateRow()                 → Builds one dynamic gate row
-updateSelectedOperations        → Updates selected operations
+
 handleOperationChange()         → Handles operation checkbox changes
-handleSelectAllOperations()     → Handles select all operations checkbox
-updateOperationControls()       → Enables/disables operation checkboxes
-handleProfessionalModeChange()  → Handles professional mode checkbox changes
-showAnswerFeedback()            → Shows visual feedback for correct/wrong answer
-showLevelUpEffect()             → Shows level up animation
-showGameOverEffect()            → Shows game over animation
+handleSelectAllOperations()     → Handles Select All checkbox
+updateOperationControls()       → Enables/disables operation controls
+handleProfessionalModeChange()  → Handles Professional Mode
+
+showAnswerFeedback()            → Shows correct/wrong feedback
+showLevelUpEffect()             → Shows level-up animation
+showGameOverEffect()            → Shows game-over animation
+
+lerp()                          → Linear interpolation helper
+updateGateRowPerspective()      → Updates gate-row perspective
+
+tiltPlayer()                    → Adds temporary movement tilt
+updatePlayerLaneTilt()          → Updates permanent lane tilt
+toggleMute()                    → Toggles game audio
 ==================================================
 */
 
 function updatePlayerPosition() {
   const roadWidth = road.clientWidth;
 
-  const sidePadding = parseInt(
+  const sidePadding = parseFloat(
     getComputedStyle(document.documentElement).getPropertyValue(
       "--road-side-padding",
     ),
   );
 
   const innerWidth = roadWidth - sidePadding * 2;
-
   const laneWidth = innerWidth / 3;
 
-  const centerOfLane =
-    sidePadding + gameState.playerLane * laneWidth + laneWidth / 2;
+  const laneOffset =
+    (gameState.playerLane - 1) * laneWidth * PLAYER_LANE_SPREAD;
 
-  player.style.left = `${centerOfLane}px`;
+  player.style.transform = `translateX(calc(-50% + ${laneOffset}px))`;
 }
 
 function handleKeyboard(event) {
   // Play / Pause
   // Enter
+
+  if (event.code === "KeyM") {
+    toggleMute();
+    return;
+  }
   if (event.code === "Enter") {
     event.preventDefault();
 
@@ -190,32 +235,42 @@ function handleKeyboard(event) {
 
   if (event.key === "Escape") {
     event.preventDefault();
-playButtonClickSound();
+    playButtonClickSound();
     stopGame();
-
     return;
   }
 
   // L key pressed
   if (event.code === "KeyL") {
     gameState.isLevelKeyPressed = true;
+    levelUpButton.classList.add("keyboard-hover");
+    levelDownButton.classList.add("keyboard-hover");
     return;
   }
 
   // Change level only in START
   if (gameState.mode === GAME_MODES.START && gameState.isLevelKeyPressed) {
-    playButtonClickSound();
     if (event.key === "ArrowUp") {
       event.preventDefault();
-     
-      changeLevel(1);
+
+      if (!levelUpButton.disabled) {
+        showLevelButtonPress(levelUpButton);
+        playButtonClickSound();
+        changeLevel(1);
+      }
+
       return;
     }
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
 
-      changeLevel(-1);
+      if (!levelDownButton.disabled) {
+        showLevelButtonPress(levelDownButton);
+        playButtonClickSound();
+        changeLevel(-1);
+      }
+
       return;
     }
   }
@@ -229,6 +284,8 @@ playButtonClickSound();
     if (gameState.playerLane > 0) {
       gameState.playerLane--;
       updatePlayerPosition();
+      updatePlayerLaneTilt();
+      tiltPlayer("left");
       playButtonClickSound();
     }
   }
@@ -237,15 +294,17 @@ playButtonClickSound();
     if (gameState.playerLane < 2) {
       gameState.playerLane++;
       updatePlayerPosition();
+      updatePlayerLaneTilt();
+      tiltPlayer("right");
       playButtonClickSound();
     }
   }
 
   if (event.key === "ArrowDown") {
     event.preventDefault();
-    
+
     if (gameState.canFastForward) {
-        gameState.isFastForward = true;
+      gameState.isFastForward = true;
     }
 
     return;
@@ -274,6 +333,8 @@ function handleKeyUp(event) {
 
   if (event.code === "KeyL") {
     gameState.isLevelKeyPressed = false;
+    levelUpButton.classList.remove("keyboard-hover");
+    levelDownButton.classList.remove("keyboard-hover");
   }
 }
 
@@ -291,6 +352,8 @@ function bindEvents() {
   document.addEventListener("keyup", handleKeyUp);
 
   pauseButton.addEventListener("click", togglePause);
+
+  muteButton.addEventListener("click", toggleMute);
 
   restartButton.addEventListener("click", restartGame);
 
@@ -333,19 +396,24 @@ function startRound() {
 
   const limitsData = generateLimits(question.result);
 
+  if (gameState.professionalMode) {
+  }
+
   questionElement.textContent = `${question.number1} ${question.operator} ${question.number2} = ?`;
 
   const rowElement = createGateRow(limitsData.limits);
 
-  rowElement.style.transform = `translateY(${START_ROW_Y}px)`;
-
-  gameState.gateRows.push({
+  const rowData = {
     element: rowElement,
-    y: START_ROW_Y,
+    progress: 0,
     evaluated: false,
     correctGate: limitsData.correctGate,
     forceExit: false,
-  });
+  };
+
+  gameState.gateRows.push(rowData);
+
+  updateGateRowPerspective(rowData);
 }
 
 function evaluateAnswer(row) {
@@ -353,34 +421,24 @@ function evaluateAnswer(row) {
     ? row.correctGate === null
     : gameState.playerLane === row.correctGate;
 
-  console.log(
-    "Player selected:",
-    gameState.noGateSelected ? "NO GATE" : `Gate ${gameState.playerLane + 1}`,
-  );
-
-  console.log(
-    "Correct answer:",
-    row.correctGate === null ? "NO GATE" : `Gate ${row.correctGate + 1}`,
-  );
-
-  console.log(isCorrect ? "CORRECT" : "WRONG");
-
   return isCorrect;
 }
 
 function moveGateRows() {
-  const currentSpeed = gameState.isFastForward
+  const baseSpeed = gameState.isFastForward
     ? gameState.speed * FAST_FORWARD_MULTIPLIER
     : gameState.speed;
 
   gameState.gateRows.forEach((row) => {
-    const rowSpeed = row.forceExit
-      ? gameState.speed * FORCE_EXIT_MULTIPLIER
-      : currentSpeed;
+    let rowSpeed = baseSpeed;
 
-    row.y += rowSpeed;
+    if (row.forceExit || row.evaluated) {
+      rowSpeed = gameState.speed * FORCE_EXIT_MULTIPLIER;
+    }
 
-    row.element.style.transform = `translateY(${row.y}px)`;
+    row.progress += rowSpeed * GATE_PROGRESS_SPEED;
+
+    updateGateRowPerspective(row);
   });
 }
 
@@ -399,19 +457,21 @@ function gameLoop() {
 }
 
 function hasRowReachedPlayer(row) {
-  const gate = row.element.querySelector(".gate");
+  const gate = row.element.querySelector(".gate-image");
 
   const gateRect = gate.getBoundingClientRect();
-
   const playerRect = player.getBoundingClientRect();
 
-  return gateRect.top >= playerRect.top;
+  const gateCenterY =
+    gateRect.top + gateRect.height / 2 + playerRect.height / 2;
+
+  return gateCenterY >= playerRect.top;
 }
 
 function togglePause() {
-  playStartSound();
   if (gameState.mode === GAME_MODES.START) {
     setGameMode(GAME_MODES.PLAYING);
+    playStartSound();
 
     requestAnimationFrame(gameLoop);
 
@@ -426,49 +486,49 @@ function togglePause() {
 
   if (gameState.mode === GAME_MODES.PAUSED) {
     setGameMode(GAME_MODES.PLAYING);
+    playStartSound();
 
     requestAnimationFrame(gameLoop);
   }
 }
 
 function updateHUD() {
-  scoreElement.textContent = `Score: ${gameState.score}`;
+  scoreElement.textContent = gameState.score;
 
   levelNumberElement.textContent = gameState.level;
 
-  livesElement.textContent = `Lives: ${gameState.lives}`;
+  livesElement.textContent = gameState.lives;
 }
 
 function createGateRow(limits) {
   const row = document.createElement("div");
-
   row.classList.add("gate-row");
 
-  // LIMITS
+  // =========================
+  // NORMAL LIMITS
+  // =========================
 
-  const limitsContainer = document.createElement("div");
 
-  limitsContainer.classList.add("limits");
+    const limitsContainer = document.createElement("div");
 
-  limits.forEach((limit, index) => {
-    const limitElement = document.createElement("div");
+    limitsContainer.classList.add("limits");
 
-    limitElement.classList.add("limit-box", `limit-${index}`);
+    limits.forEach((limit, index) => {
+      const limitElement = document.createElement("div");
 
-    if (gameState.professionalMode) {
-      limitElement.textContent = generateLimitExpression(
-        limit,
-        gameState.selectedOperations,
-      );
+      limitElement.classList.add("limit-box", `limit-${index}`);
 
-      limitElement.classList.add("professional-limit");
-    } else {
       limitElement.textContent = limit;
-    }
-    limitsContainer.append(limitElement);
-  });
 
+      limitsContainer.append(limitElement);
+    });
+
+    row.append(limitsContainer);
+  
+
+  // =========================
   // GATES
+  // =========================
 
   const gatesContainer = document.createElement("div");
 
@@ -479,16 +539,17 @@ function createGateRow(limits) {
 
     gate.classList.add("gate");
 
-    gate.dataset.lane = i;
+    const gateImage = document.createElement("img");
 
-    gate.textContent = "GATE";
+    gateImage.classList.add("gate-image");
+    gateImage.src = "./assets/images/gate.png";
+    gateImage.alt = `Gate ${i + 1}`;
 
+    gate.append(gateImage);
     gatesContainer.append(gate);
   }
 
-  // BUILD ROW
-
-  row.append(limitsContainer, gatesContainer);
+  row.append(gatesContainer);
 
   gateRowsContainer.append(row);
 
@@ -535,31 +596,24 @@ function finishRound(row) {
     return;
   }
 
-  startRound();
+  setTimeout(() => {
+    startRound();
+  }, ROUND_TRANSITION_DELAY);
 }
 
 function checkGateRows() {
   gameState.gateRows.forEach((row) => {
     if (!row.evaluated && hasRowReachedPlayer(row)) {
       row.evaluated = true;
-
       finishRound(row);
     }
   });
 }
 
 function removeExitedRows() {
-  const roadRect = road.getBoundingClientRect();
-
   gameState.gateRows = gameState.gateRows.filter((row) => {
-    const rowRect = row.element.getBoundingClientRect();
-
-    if (rowRect.top >= roadRect.bottom) {
+    if (row.progress >= PERSPECTIVE_CONFIG.exitProgress) {
       row.element.remove();
-      //   console.log("Removed exited row");
-
-      //   console.log("Rows:", gameState.gateRows.length);
-
       return false;
     }
 
@@ -581,6 +635,7 @@ function restartGame() {
   setGameMode(GAME_MODES.START);
 
   startRound();
+  updatePlayerLaneTilt();
 }
 
 function updateLevelButtons() {
@@ -619,6 +674,13 @@ function changeLevel(direction) {
 }
 
 function updateGameModeUI() {
+  questionElement.style.visibility = "visible";
+
+  document
+    .querySelectorAll(".limits, #professional-limits")
+    .forEach((element) => {
+      element.style.visibility = "visible";
+    });
   switch (gameState.mode) {
     case GAME_MODES.START:
       startOverlay.classList.remove("hidden");
@@ -655,6 +717,14 @@ function updateGameModeUI() {
 
       stopButton.disabled = false;
       startOverlay.classList.add("hidden");
+
+      questionElement.style.visibility = "hidden";
+
+      document
+        .querySelectorAll(".limits, #professional-limits")
+        .forEach((element) => {
+          element.style.visibility = "hidden";
+        });
 
       break;
 
@@ -708,22 +778,8 @@ function stopGame() {
   setGameMode(GAME_MODES.START);
 
   startRound();
-}
 
-function updateSelectedOperations() {
-  const selectedOperations = [];
-
-  operationCheckboxes.forEach((checkbox) => {
-    if (checkbox.checked) {
-      selectedOperations.push(checkbox.value);
-    }
-  });
-
-  if (selectedOperations.length === 0) {
-    return;
-  }
-
-  gameState.selectedOperations = selectedOperations;
+  updatePlayerLaneTilt();
 }
 
 function handleOperationChange(event) {
@@ -790,24 +846,12 @@ function handleProfessionalModeChange() {
 function showAnswerFeedback(isCorrect) {
   const className = isCorrect ? "feedback-correct" : "feedback-wrong";
 
-  road.classList.remove("feedback-correct", "feedback-wrong");
-
   player.classList.remove("feedback-correct", "feedback-wrong");
 
-  // Restart animations if feedback happens again quickly
-  void road.offsetWidth;
+  // Restart animation if feedback happens again quickly
   void player.offsetWidth;
 
-  road.classList.add(className);
   player.classList.add(className);
-
-  road.addEventListener(
-    "animationend",
-    () => {
-      road.classList.remove(className);
-    },
-    { once: true },
-  );
 
   player.addEventListener(
     "animationend",
@@ -860,4 +904,125 @@ function showGameOverEffect() {
     },
     { once: true },
   );
+}
+
+function lerp(start, end, t) {
+  return start + (end - start) * t;
+}
+
+function updateGateRowPerspective(row) {
+  const roadWidth = road.clientWidth;
+
+  const clampedProgress = Math.min(
+    row.progress,
+    PERSPECTIVE_CONFIG.triggerProgress,
+  );
+
+  const progressRatio = clampedProgress / PERSPECTIVE_CONFIG.triggerProgress;
+
+  // =========================
+  // VERTICAL POSITION
+  // =========================
+
+  const normalTop = lerp(
+    PERSPECTIVE_CONFIG.startTop,
+    PERSPECTIVE_CONFIG.playerTop,
+    progressRatio,
+  );
+
+  let currentTop = normalTop;
+
+  // After evaluation, continue moving down until exit
+  if (row.progress > PERSPECTIVE_CONFIG.triggerProgress) {
+    const extraProgress =
+      (row.progress - PERSPECTIVE_CONFIG.triggerProgress) /
+      (PERSPECTIVE_CONFIG.exitProgress - PERSPECTIVE_CONFIG.triggerProgress);
+
+    currentTop = lerp(
+      PERSPECTIVE_CONFIG.playerTop,
+      PERSPECTIVE_CONFIG.exitTop,
+      Math.min(extraProgress, 1),
+    );
+  }
+
+  row.element.style.top = `${currentTop}px`;
+
+  // =========================
+  // PERSPECTIVE WIDTH
+  // =========================
+
+  const width = lerp(
+    roadWidth * PERSPECTIVE_CONFIG.startWidthRatio,
+    roadWidth * PERSPECTIVE_CONFIG.endWidthRatio,
+    progressRatio,
+  );
+
+  // =========================
+  // PERSPECTIVE SCALE
+  // =========================
+
+  const scale = lerp(
+    PERSPECTIVE_CONFIG.startScale,
+    PERSPECTIVE_CONFIG.endScale,
+    progressRatio,
+  );
+
+  // =========================
+  // APPLY STYLES
+  // =========================
+
+  row.element.style.setProperty("--row-scale", scale);
+
+  row.element.style.left = "50%";
+  row.element.style.width = `${width}px`;
+
+  row.element.style.transform = `translateX(-50%) scale(${scale})`;
+}
+
+function tiltPlayer(direction) {
+  playerImage.classList.remove("tilt-left", "tilt-right");
+
+  if (direction === "right" && gameState.playerLane < 2) {
+    playerImage.classList.add("tilt-left");
+  }
+
+  if (direction === "left" && gameState.playerLane > 0) {
+    playerImage.classList.add("tilt-right");
+  }
+
+  setTimeout(() => {
+    playerImage.classList.remove("tilt-left", "tilt-right");
+  }, 220);
+}
+function updatePlayerLaneTilt() {
+  playerImage.classList.remove("lane-left", "lane-center", "lane-right");
+
+  if (gameState.playerLane === 0) {
+    playerImage.classList.add("lane-left");
+  } else if (gameState.playerLane === 1) {
+    playerImage.classList.add("lane-center");
+  } else if (gameState.playerLane === 2) {
+    playerImage.classList.add("lane-right");
+  }
+}
+
+function toggleMute() {
+  isMuted = !isMuted;
+
+  setMuted(isMuted);
+
+  soundOnIcon.classList.toggle("hidden", isMuted);
+  soundOffIcon.classList.toggle("hidden", !isMuted);
+}
+
+function showLevelButtonPress(button) {
+  button.classList.remove("keyboard-press");
+
+  void button.offsetWidth;
+
+  button.classList.add("keyboard-press");
+
+  setTimeout(() => {
+    button.classList.remove("keyboard-press");
+  }, 120);
 }

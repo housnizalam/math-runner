@@ -5,6 +5,14 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
     <title>Math Runner</title>
 
     <link rel="stylesheet" href="./css/style.css" />
@@ -12,47 +20,111 @@
 
   <body>
     <main id="game">
-      <!-- Game information -->
+      <!-- HUD -->
       <header id="hud">
-        <div id="score">Score: 0</div>
+        <div id="hud-stats">
+          <div class="hud-item">
+            <span class="hud-label">Score</span>
+            <span id="score">0</span>
+          </div>
 
-        <div id="level-control">
-          <span class="level-label">Level:</span>
+          <div class="hud-item" id="level-control">
+            <span class="hud-label level-label">Level</span>
 
-          <div class="level-picker">
-            <button id="level-up" aria-label="Higher level">▲</button>
-            <span id="level-number">1</span>
-            <button id="level-down" aria-label="Lower level">▼</button>
+            <div class="level-picker">
+              <button
+                id="level-up"
+                type="button"
+                aria-label="Higher level"
+              >
+                ▲
+              </button>
+
+              <span id="level-number">1</span>
+
+              <button
+                id="level-down"
+                type="button"
+                aria-label="Lower level"
+              >
+                ▼
+              </button>
+            </div>
+          </div>
+
+          <div class="hud-item">
+            <span class="hud-label">Lives</span>
+            <span id="lives">3</span>
           </div>
         </div>
 
-        <div id="lives">Lives: 3</div>
-
         <div id="game-controls">
-          <button id="stop-button" aria-label="Stop">
+          <button
+            id="mute-button"
+            type="button"
+            aria-label="Mute sound"
+          >
+            <svg
+              id="sound-on-icon"
+              class="sound-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+
+            <svg
+              id="sound-off-icon"
+              class="sound-icon hidden"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+          </button>
+
+          <button
+            id="stop-button"
+            type="button"
+            aria-label="Stop"
+          >
             <span class="stop-icon"></span>
           </button>
-          <button id="pause-button" aria-label="Play">▶</button>
+
+          <button
+            id="pause-button"
+            type="button"
+            aria-label="Play"
+          >
+            ▶
+          </button>
         </div>
       </header>
 
-      <!-- Math question -->
-      <section id="question-area">
-        <h1 id="question">7 + 8 = ?</h1>
-      </section>
-
       <!-- Game road -->
       <section id="road">
-        <!-- Lane lines -->
-        <div id="lane-lines">
-          <div class="lane-line line-0"></div>
-          <div class="lane-line line-1"></div>
-          <div class="lane-line line-2"></div>
-          <div class="lane-line line-3"></div>
-        </div>
+        <!-- Math question -->
+        <h1 id="question">...</h1>
 
         <!-- Dynamic gate rows -->
         <div id="gate-rows"></div>
+
+        <!-- Professional limits -->
+        <div id="professional-limits"></div>
 
         <!-- Lanes -->
         <div id="lanes">
@@ -62,13 +134,27 @@
         </div>
 
         <!-- Player -->
-        <div id="player" data-lane="1">PLAYER</div>
+        <div id="player" data-lane="1">
+          <img
+            src="./assets/images/player.png"
+            alt="Player car"
+            class="player-image"
+          />
+        </div>
       </section>
 
+      <!-- Start screen -->
       <div id="start-overlay">
-        <button id="start-play-button" aria-label="Start game">▶</button>
+        <button
+          id="start-play-button"
+          type="button"
+          aria-label="Start game"
+        >
+          ▶
+        </button>
       </div>
 
+      <!-- Operation controls -->
       <aside id="operation-controls">
         <label class="operation-option">
           <input
@@ -99,39 +185,65 @@
         </label>
 
         <label class="operation-option">
-          <input type="checkbox" class="operation-checkbox" value="division" />
+          <input
+            type="checkbox"
+            class="operation-checkbox"
+            value="division"
+          />
           <span>÷</span>
         </label>
 
         <label class="operation-option all-option">
-          <input type="checkbox" id="select-all-operations" />
+          <input
+            type="checkbox"
+            id="select-all-operations"
+          />
           <span>All</span>
         </label>
+
         <label class="operation-option professional-option">
-          <input type="checkbox" id="professional-mode" />
+          <input
+            type="checkbox"
+            id="professional-mode"
+          />
           <span>Pro</span>
         </label>
       </aside>
 
+      <!-- Level-up screen -->
       <div id="level-up-overlay" class="hidden">
         <div id="level-up-text">LEVEL 2</div>
       </div>
 
-      <!-- Game over screen -->
+      <!-- Game-over screen -->
       <section id="game-over" class="hidden">
-        <h2>
-          <span id="game-over-pulse-text">Game Over</span>
-        </h2>
+        <div class="game-over-title-wrapper">
+          <img
+            src="./assets/images/game-over.png"
+            alt="Game Over"
+            id="game-over-image"
+          />
+        </div>
+
         <p>
           Level:
-          <span id="final-level"> 0 </span>
+          <span id="final-level">0</span>
         </p>
 
-        <button id="restart-button">Restart</button>
+        <button
+          id="restart-button"
+          type="button"
+        >
+          Restart
+        </button>
       </section>
-      <button id="pause-button" aria-label="Pause">⏸</button>
+
+      <!-- Pause screen -->
       <div id="pause-overlay" class="hidden">
-        <img src="./assets/images/pause.jpg" alt="Paused" />
+        <div class="pause-content">
+          <div class="pause-icon">Ⅱ</div>
+          <div class="pause-title">PAUSED</div>
+        </div>
       </div>
     </main>
 
