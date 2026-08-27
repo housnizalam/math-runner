@@ -32,21 +32,13 @@
             <span class="hud-label level-label">Level</span>
 
             <div class="level-picker">
-              <button
-                id="level-up"
-                type="button"
-                aria-label="Higher level"
-              >
+              <button id="level-up" type="button" aria-label="Higher level">
                 ▲
               </button>
 
               <span id="level-number">1</span>
 
-              <button
-                id="level-down"
-                type="button"
-                aria-label="Lower level"
-              >
+              <button id="level-down" type="button" aria-label="Lower level">
                 ▼
               </button>
             </div>
@@ -59,11 +51,7 @@
         </div>
 
         <div id="game-controls">
-          <button
-            id="mute-button"
-            type="button"
-            aria-label="Mute sound"
-          >
+          <button id="mute-button" type="button" aria-label="Mute sound">
             <svg
               id="sound-on-icon"
               class="sound-icon"
@@ -97,21 +85,11 @@
             </svg>
           </button>
 
-          <button
-            id="stop-button"
-            type="button"
-            aria-label="Stop"
-          >
+          <button id="stop-button" type="button" aria-label="Stop">
             <span class="stop-icon"></span>
           </button>
 
-          <button
-            id="pause-button"
-            type="button"
-            aria-label="Play"
-          >
-            ▶
-          </button>
+          <button id="pause-button" type="button" aria-label="Play">▶</button>
         </div>
       </header>
 
@@ -145,12 +123,14 @@
 
       <!-- Start screen -->
       <div id="start-overlay">
-        <button
-          id="start-play-button"
-          type="button"
-          aria-label="Start game"
-        >
-          ▶
+        <button id="start-play-button" type="button" aria-label="Start game">
+          <span class="start-play-icon">Ready</span>
+
+          <div class="start-go-sequence">
+            <span class="start-go start-go-large">go</span>
+            <span class="start-go start-go-medium">go</span>
+            <span class="start-go start-go-small">go</span>
+          </div>
         </button>
       </div>
 
@@ -185,27 +165,17 @@
         </label>
 
         <label class="operation-option">
-          <input
-            type="checkbox"
-            class="operation-checkbox"
-            value="division"
-          />
+          <input type="checkbox" class="operation-checkbox" value="division" />
           <span>÷</span>
         </label>
 
         <label class="operation-option all-option">
-          <input
-            type="checkbox"
-            id="select-all-operations"
-          />
+          <input type="checkbox" id="select-all-operations" />
           <span>All</span>
         </label>
 
         <label class="operation-option professional-option">
-          <input
-            type="checkbox"
-            id="professional-mode"
-          />
+          <input type="checkbox" id="professional-mode" />
           <span>Pro</span>
         </label>
       </aside>
@@ -230,12 +200,7 @@
           <span id="final-level">0</span>
         </p>
 
-        <button
-          id="restart-button"
-          type="button"
-        >
-          Restart
-        </button>
+        <button id="restart-button" type="button">Restart</button>
       </section>
 
       <!-- Pause screen -->

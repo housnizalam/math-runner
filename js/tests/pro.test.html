@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Professional Mode Tests</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 30px;
+        background: #111;
+        color: #eee;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      button {
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      #summary {
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .success {
+        color: #67ff8a;
+      }
+
+      .failure {
+        color: #ff6868;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        border: 1px solid #444;
+        text-align: center;
+      }
+
+      th {
+        background: #222;
+      }
+
+      .correct {
+        background: rgba(0, 180, 80, 0.2);
+      }
+
+      .wrong {
+        background: rgba(220, 50, 50, 0.2);
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Professional Mode Test</h1>
+
+    <div class="controls">
+      <label>
+        <input
+          type="checkbox"
+          class="operation"
+          value="addition"
+          checked
+        />
+        Addition
+      </label>
+
+      <label>
+        <input
+          type="checkbox"
+          class="operation"
+          value="subtraction"
+          checked
+        />
+        Subtraction
+      </label>
+
+      <label>
+        <input
+          type="checkbox"
+          class="operation"
+          value="multiplication"
+          checked
+        />
+        Multiplication
+      </label>
+
+      <label>
+        <input
+          type="checkbox"
+          class="operation"
+          value="division"
+          checked
+        />
+        Division
+      </label>
+
+      <label>
+        Tests:
+        <input
+          id="test-count"
+          type="number"
+          value="100"
+          min="1"
+          max="10000"
+        />
+      </label>
+
+      <button id="run-tests">Run Tests</button>
+    </div>
+
+    <div id="summary"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Question</th>
+          <th>Result</th>
+          <th>Option 1</th>
+          <th>Option 2</th>
+          <th>Option 3</th>
+          <th>Correct</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="results"></tbody>
+    </table>
+
+    <script type="module">
+      import {
+        generateProfessionalQuestion,
+        generateProfessionalOptions,
+      } from "../questions.js";
+
+      const operationCheckboxes =
+        document.querySelectorAll(".operation");
+
+      const runButton = document.querySelector("#run-tests");
+
+      const testCountInput = document.querySelector("#test-count");
+
+      const resultsElement = document.querySelector("#results");
+
+      const summaryElement = document.querySelector("#summary");
+
+      function calculateExpression(expression) {
+        if (expression.includes("+")) {
+          const [number1, number2] = expression.split("+").map(Number);
+
+          return number1 + number2;
+        }
+
+        if (expression.includes("−")) {
+          const [number1, number2] = expression.split("−").map(Number);
+
+          return number1 - number2;
+        }
+
+        if (expression.includes("×")) {
+          const [number1, number2] = expression.split("×").map(Number);
+
+          return number1 * number2;
+        }
+
+        if (expression.includes("÷")) {
+          const [number1, number2] = expression.split("÷").map(Number);
+
+          return number1 / number2;
+        }
+
+        throw new Error(`Unknown expression: ${expression}`);
+      }
+
+      function containsDecimal(expression) {
+        const numbers = expression.match(/-?\d+(\.\d+)?/g);
+
+        if (!numbers) {
+          return false;
+        }
+
+        return numbers.some((number) => !Number.isInteger(Number(number)));
+      }
+
+      function getSelectedOperations() {
+        return [...operationCheckboxes]
+          .filter((checkbox) => checkbox.checked)
+          .map((checkbox) => checkbox.value);
+      }
+
+      function runTests() {
+        const selectedOperations = getSelectedOperations();
+
+        if (selectedOperations.length === 0) {
+          alert("Select at least one operation.");
+          return;
+        }
+
+        const testCount = Number(testCountInput.value);
+
+        resultsElement.innerHTML = "";
+
+        let passed = 0;
+        let failed = 0;
+
+        for (let i = 1; i <= testCount; i++) {
+          const question = generateProfessionalQuestion(
+            1,
+            20,
+            selectedOperations,
+          );
+
+          const professionalData = generateProfessionalOptions(
+            question.result,
+            selectedOperations,
+          );
+
+          const optionResults = professionalData.options.map(
+            calculateExpression,
+          );
+
+          const errors = [];
+
+          // --------------------------------------------------
+          // TEST 1: Question result must be integer
+          // --------------------------------------------------
+
+          if (!Number.isInteger(question.result)) {
+            errors.push("Question result is decimal");
+          }
+
+          // --------------------------------------------------
+          // TEST 2: Exactly three options
+          // --------------------------------------------------
+
+          if (professionalData.options.length !== 3) {
+            errors.push("Options count is not 3");
+          }
+
+          // --------------------------------------------------
+          // TEST 3: No decimal operands
+          // --------------------------------------------------
+
+          professionalData.options.forEach((option) => {
+            if (containsDecimal(option)) {
+              errors.push(`Decimal number: ${option}`);
+            }
+          });
+
+          // --------------------------------------------------
+          // TEST 4: Correct gate
+          // --------------------------------------------------
+
+          if (professionalData.correctGate === null) {
+            const hasCorrectGate = optionResults.some(
+              (result) => result === question.result,
+            );
+
+            if (hasCorrectGate) {
+              errors.push(
+                "correctGate is null but a correct gate exists",
+              );
+            }
+          } else {
+            const correctGate =
+              professionalData.correctGate;
+
+            if (
+              optionResults[correctGate] !== question.result
+            ) {
+              errors.push(
+                `Gate ${correctGate + 1} should be correct`,
+              );
+            }
+
+            optionResults.forEach((result, index) => {
+              if (
+                index !== correctGate &&
+                result === question.result
+              ) {
+                errors.push(
+                  `Gate ${index + 1} is also correct`,
+                );
+              }
+            });
+          }
+
+          // --------------------------------------------------
+          // TEST 5: Duplicate option values
+          // --------------------------------------------------
+
+          if (new Set(optionResults).size !== optionResults.length) {
+            errors.push("Duplicate option values");
+          }
+
+          // --------------------------------------------------
+          // RESULT
+          // --------------------------------------------------
+
+          const success = errors.length === 0;
+
+          if (success) {
+            passed++;
+          } else {
+            failed++;
+          }
+
+          const row = document.createElement("tr");
+
+          row.className = success ? "correct" : "wrong";
+
+          const correctAnswer =
+            professionalData.correctGate === null
+              ? "SPACE"
+              : `Gate ${professionalData.correctGate + 1}`;
+
+          row.innerHTML = `
+            <td>${i}</td>
+
+            <td>
+              ${question.number1}
+              ${question.operator}
+              ${question.number2}
+            </td>
+
+            <td>${question.result}</td>
+
+            <td>
+              ${professionalData.options[0]}
+              = ${optionResults[0]}
+            </td>
+
+            <td>
+              ${professionalData.options[1]}
+              = ${optionResults[1]}
+            </td>
+
+            <td>
+              ${professionalData.options[2]}
+              = ${optionResults[2]}
+            </td>
+
+            <td>${correctAnswer}</td>
+
+            <td>
+              ${
+                success
+                  ? "PASS"
+                  : errors.join("<br>")
+              }
+            </td>
+          `;
+
+          resultsElement.append(row);
+        }
+
+        summaryElement.textContent =
+          `Passed: ${passed} | Failed: ${failed}`;
+
+        summaryElement.className =
+          failed === 0 ? "success" : "failure";
+      }
+
+      runButton.addEventListener("click", runTests);
+    </script>
+  </body>
+</html>

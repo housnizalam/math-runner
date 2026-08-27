@@ -11,6 +11,34 @@ function getRandomNumber(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function formatNumber(number) {
+  return number < 0 ? `(${number})` : `${number}`;
+}
+
+function getNextDivisibleNumber(number, divisor) {
+  while (number % divisor !== 0) {
+    number++;
+  }
+
+  return number;
+}
+
+function isPrime(number) {
+  const absoluteNumber = Math.abs(number);
+
+  if (absoluteNumber < 2 || !Number.isInteger(absoluteNumber)) {
+    return false;
+  }
+
+  for (let i = 2; i <= Math.sqrt(absoluteNumber); i++) {
+    if (absoluteNumber % i === 0) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export function generateQuestion(
   minNumber,
   maxNumber,
@@ -152,18 +180,97 @@ export function generateLimits(result) {
   };
 }
 
+export function generateProfessionalQuestion(
+  minNumber,
+  maxNumber,
+  selectedOperations = [OPERATIONS.ADDITION],
+) {
+  const question = generateQuestion(minNumber, maxNumber, selectedOperations);
 
-export function generateLimitExpression(limit, selectedOperations) {
-  const operationIndex = getRandomNumber(0, selectedOperations.length - 1);
+  if (
+    question.operation === OPERATIONS.DIVISION &&
+    !Number.isInteger(question.result)
+  ) {
+    question.number1 = getNextDivisibleNumber(
+      question.number1,
+      question.number2,
+    );
 
-  const operation = selectedOperations[operationIndex];
+    question.result = question.number1 / question.number2;
+  }
+
+  return question;
+}
+
+export function generateProfessionalOptions(result, selectedOperations) {
+  const onlyMultiplication =
+    selectedOperations.length === 1 &&
+    selectedOperations[0] === OPERATIONS.MULTIPLICATION;
+
+  const cannotUseMultiplicationResult =
+    isPrime(result) || Math.abs(result) <= 1;
+
+  const correctGateCase =
+    onlyMultiplication && cannotUseMultiplicationResult
+      ? 3
+      : getRandomNumber(0, 3);
+
+  const optionValues = [];
+
+  for (let i = 0; i < 3; i++) {
+    if (i === correctGateCase) {
+      optionValues.push(result);
+      continue;
+    }
+
+    let wrongValue;
+
+    do {
+      wrongValue = result + getRandomNumber(-20, 20);
+    } while (
+      wrongValue === result ||
+      optionValues.includes(wrongValue) ||
+      (onlyMultiplication && (isPrime(wrongValue) || Math.abs(wrongValue) <= 1))
+    );
+
+    optionValues.push(wrongValue);
+  }
+
+  const options = optionValues.map((value) =>
+    generateExpressionForValue(value, selectedOperations),
+  );
+
+  return {
+    options,
+    correctGate: correctGateCase === 3 ? null : correctGateCase,
+  };
+}
+
+function generateExpressionForValue(value, selectedOperations) {
+  let availableOperations = [...selectedOperations];
+
+  const cannotUseMultiplication = isPrime(value) || Math.abs(value) <= 1;
+
+  if (
+    cannotUseMultiplication &&
+    availableOperations.includes(OPERATIONS.MULTIPLICATION) &&
+    availableOperations.length > 1
+  ) {
+    availableOperations = availableOperations.filter(
+      (operation) => operation !== OPERATIONS.MULTIPLICATION,
+    );
+  }
+
+  const operationIndex = getRandomNumber(0, availableOperations.length - 1);
+
+  const operation = availableOperations[operationIndex];
 
   switch (operation) {
     case OPERATIONS.ADDITION: {
-      const range = Math.max(10, Math.abs(limit) * 2);
+      const range = Math.max(10, Math.abs(value) * 2);
 
       let number1 = getRandomNumber(-range, range);
-      let number2 = limit - number1;
+      let number2 = value - number1;
 
       if (number2 < 0) {
         const temp = number1;
@@ -175,16 +282,16 @@ export function generateLimitExpression(limit, selectedOperations) {
     }
 
     case OPERATIONS.SUBTRACTION: {
-      const range = Math.max(10, Math.abs(limit) * 2);
+      const range = Math.max(10, Math.abs(value) * 2);
 
       const number2 = getRandomNumber(1, range);
-      const number1 = limit + number2;
+      const number1 = value + number2;
 
       return `${number1} − ${number2}`;
     }
 
     case OPERATIONS.MULTIPLICATION: {
-      if (limit === 0) {
+      if (value === 0) {
         const number1 = getRandomNumber(-20, 20);
 
         return `${number1} × 0`;
@@ -192,12 +299,18 @@ export function generateLimitExpression(limit, selectedOperations) {
 
       const divisors = [];
 
-      const absoluteLimit = Math.abs(limit);
+      const absoluteValue = Math.abs(value);
 
-      for (let i = 1; i <= absoluteLimit; i++) {
-        if (absoluteLimit % i === 0) {
+      for (let i = 1; i <= absoluteValue; i++) {
+        if (absoluteValue % i === 0) {
           divisors.push(i);
         }
+      }
+
+      if (divisors.length === 0) {
+        throw new Error(
+          `No valid multiplication expression for value: ${value}`,
+        );
       }
 
       let number1 = divisors[getRandomNumber(0, divisors.length - 1)];
@@ -207,7 +320,7 @@ export function generateLimitExpression(limit, selectedOperations) {
         number1 *= -1;
       }
 
-      const number2 = limit / number1;
+      const number2 = value / number1;
 
       return `${number1} × ${number2}`;
     }
@@ -219,7 +332,7 @@ export function generateLimitExpression(limit, selectedOperations) {
         divisor *= -1;
       }
 
-      const dividend = limit * divisor;
+      const dividend = value * divisor;
 
       return `${dividend} ÷ ${divisor}`;
     }

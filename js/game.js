@@ -5,7 +5,9 @@
 // =========================//
 import {
   generateQuestion,
+  generateProfessionalQuestion,
   generateLimits,
+  generateProfessionalOptions,
 } from "./questions.js";
 
 import {
@@ -388,26 +390,34 @@ function startRound() {
 
   gameState.speed = levelSettings.speed;
 
-  const question = generateQuestion(
-    levelSettings.minNumber,
-    levelSettings.maxNumber,
-    gameState.selectedOperations,
-  );
+  const question = gameState.professionalMode
+    ? generateProfessionalQuestion(
+        levelSettings.minNumber,
+        levelSettings.maxNumber,
+        gameState.selectedOperations,
+      )
+    : generateQuestion(
+        levelSettings.minNumber,
+        levelSettings.maxNumber,
+        gameState.selectedOperations,
+      );
 
-  const limitsData = generateLimits(question.result);
+  const roundData = gameState.professionalMode
+    ? generateProfessionalOptions(question.result, gameState.selectedOperations)
+    : generateLimits(question.result);
 
   if (gameState.professionalMode) {
   }
 
   questionElement.textContent = `${question.number1} ${question.operator} ${question.number2} = ?`;
 
-  const rowElement = createGateRow(limitsData.limits);
+  const rowElement = createGateRow(roundData);
 
   const rowData = {
     element: rowElement,
     progress: 0,
     evaluated: false,
-    correctGate: limitsData.correctGate,
+    correctGate: roundData.correctGate,
     forceExit: false,
   };
 
@@ -500,7 +510,7 @@ function updateHUD() {
   livesElement.textContent = gameState.lives;
 }
 
-function createGateRow(limits) {
+function createGateRow(roundData) {
   const row = document.createElement("div");
   row.classList.add("gate-row");
 
@@ -508,12 +518,12 @@ function createGateRow(limits) {
   // NORMAL LIMITS
   // =========================
 
-
+  if (!gameState.professionalMode) {
     const limitsContainer = document.createElement("div");
 
     limitsContainer.classList.add("limits");
 
-    limits.forEach((limit, index) => {
+    roundData.limits.forEach((limit, index) => {
       const limitElement = document.createElement("div");
 
       limitElement.classList.add("limit-box", `limit-${index}`);
@@ -524,7 +534,7 @@ function createGateRow(limits) {
     });
 
     row.append(limitsContainer);
-  
+  }
 
   // =========================
   // GATES
@@ -546,6 +556,16 @@ function createGateRow(limits) {
     gateImage.alt = `Gate ${i + 1}`;
 
     gate.append(gateImage);
+
+    if (gameState.professionalMode) {
+      const optionElement = document.createElement("div");
+
+      optionElement.classList.add("professional-gate-option");
+
+      optionElement.textContent = roundData.options[i];
+
+      gate.append(optionElement);
+    }
     gatesContainer.append(gate);
   }
 
@@ -920,6 +940,12 @@ function updateGateRowPerspective(row) {
 
   const progressRatio = clampedProgress / PERSPECTIVE_CONFIG.triggerProgress;
 
+  const professionalOptionFontSize = lerp(
+  1,
+  4,
+  progressRatio,
+);
+
   // =========================
   // VERTICAL POSITION
   // =========================
@@ -972,6 +998,11 @@ function updateGateRowPerspective(row) {
   // =========================
 
   row.element.style.setProperty("--row-scale", scale);
+
+  row.element.style.setProperty(
+  "--professional-option-font-size",
+  `${professionalOptionFontSize}rem`,
+);
 
   row.element.style.left = "50%";
   row.element.style.width = `${width}px`;
