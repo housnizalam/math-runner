@@ -133,19 +133,26 @@ const gameState = {
   gateRows: [],
 };
 
+const isMobile = window.matchMedia("(max-width: 600px)").matches;
+
 const PERSPECTIVE_CONFIG = {
-  startTop: -10, // row starts slightly hidden under question area
-  playerTop: 520, // approximate position where row reaches player zone
-  exitTop: 760, // row continues until it leaves the screen
+  startTop: isMobile ? 100 : -10,
 
-  startWidthRatio: 0.16, // width of row at the top of the road
-  endWidthRatio: 1.4, // width near player
+  playerTop: isMobile ? 500 : 520,
 
-  startScale: 0.45, // row is small at top
-  endScale: 1.1, // row becomes larger near player
+  exitTop: 760,
 
-  triggerProgress: 1.0, // when row reaches player and gets evaluated
-  exitProgress: 1.35, // when row is fully out and removed
+  startWidthRatio: isMobile ? 0.15 : 0.16,
+
+  endWidthRatio: isMobile ? 0.85 : 1.4,
+
+  startScale: isMobile ? 0.5 : 0.45,
+
+  endScale: isMobile ? 1.15 : 1.1,
+
+  triggerProgress: isMobile ? 1.2 : 1.0,
+
+  exitProgress: 1.35,
 };
 
 // =========================//
@@ -959,8 +966,25 @@ function updateGateRowPerspective(row) {
 
   const progressRatio = clampedProgress / PERSPECTIVE_CONFIG.triggerProgress;
 
-  const professionalOptionFontSize = lerp(1, 4, progressRatio);
+  let optionStartSize = 1;
+  let optionEndSize = 4;
+  const limitFontSize = isMobile ? lerp(0.7, 1.5, progressRatio) : 2.7;
 
+  if (isMobile && gameState.answerMode === ANSWER_MODES.EASY) {
+    optionStartSize = 0.8;
+    optionEndSize = 2;
+  }
+
+  if (isMobile && gameState.answerMode === ANSWER_MODES.PRO) {
+    optionStartSize = 0.2;
+    optionEndSize = 1.7;
+  }
+
+  const professionalOptionFontSize = lerp(
+    optionStartSize,
+    optionEndSize,
+    progressRatio,
+  );
   // =========================
   // VERTICAL POSITION
   // =========================
@@ -1018,6 +1042,7 @@ function updateGateRowPerspective(row) {
     "--professional-option-font-size",
     `${professionalOptionFontSize}rem`,
   );
+  row.element.style.setProperty("--limit-font-size", `${limitFontSize}rem`);
 
   row.element.style.left = "50%";
   row.element.style.width = `${width}px`;

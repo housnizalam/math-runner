@@ -536,22 +536,28 @@ input {
 .professional-gate-option {
   position: absolute;
 
-  top: 50%;
-  left: 50%;
+  top: 60%;
+  left: 0;
+  right: 0;
 
-  transform: translate(-50%, -50%);
+  width: auto;
+  max-width: 100%;
 
-  width: 90%;
+  transform: translateY(-10%);
 
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   white-space: nowrap;
+  overflow: hidden;
+
+  box-sizing: border-box;
 
   font-size: var(--professional-option-font-size, 1rem);
   font-weight: var(--font-weight-bold);
 
   color: var(--color-limit-text);
-
-  background: rgba(80, 160, 255, 0.5);
 
   pointer-events: none;
 
@@ -1404,4 +1410,354 @@ input {
 
 .hidden {
   display: none !important;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  #road {
+    background-position: center top;
+    background-size: 140% 150%;
+  }
+
+  :root {
+    --game-width: 100vw;
+    --game-height: 100dvh;
+
+    --hud-height: 52px;
+    --road-header-height: 115px;
+    --operations-bar-width: 54px;
+
+    --road-side-padding: 10px;
+
+    --control-button-size: 30px;
+    --stop-icon-size: 16px;
+
+    --font-size-control-icon: 1.35rem;
+    --font-size-level-arrow: 0.7rem;
+    --font-size-operation-option: 1rem;
+    --font-size-limit: 1.4rem;
+
+    --player-size: 60px;
+    --player-bottom: 170px;
+
+    --gate-gap: 6px;
+
+    --limit-box-width: 40px;
+    --limit-box-height: 32px;
+    --limit-gap-above-gate: -10px;
+
+    --operation-option-gap: 2px;
+    --operation-label-width: 30px;
+
+    --professional-option-margin-top: 18px;
+
+    --level-up-text-size: 3.5rem;
+  }
+
+  html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+  }
+
+  #game {
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100dvh;
+
+    min-width: 0;
+    max-width: none;
+    min-height: 0;
+    max-height: none;
+
+    margin: 0;
+
+    border: none;
+    border-radius: 0;
+
+    overflow: hidden;
+  }
+
+  /* =========================
+     Player
+     ========================= */
+  .player-image.lane-left {
+    --base-tilt: 15deg;
+  }
+
+  .player-image.lane-center {
+    --base-tilt: 0deg;
+  }
+
+  .player-image.lane-right {
+    --base-tilt: -15deg;
+  }
+  /* =========================
+     HUD
+     ========================= */
+
+  #hud {
+    padding: 0 5px;
+  }
+
+  #hud,
+  #hud .hud-label,
+  #hud #score,
+  #hud #level-number,
+  #hud #lives {
+    font-size: 0.8rem;
+  }
+
+  #hud-stats {
+    gap: 4px;
+  }
+
+  .hud-item {
+    min-width: 58px;
+    height: 42px;
+
+    gap: 3px;
+    padding: 0 4px;
+
+    box-shadow:
+      0 0 4px rgba(80, 180, 255, 0.8),
+      0 0 9px rgba(60, 160, 255, 0.55);
+  }
+
+  #level-control {
+    gap: 3px;
+  }
+
+  #game-controls {
+    right: calc(var(--operations-bar-width) + 3px);
+
+    height: 36px;
+
+    gap: 4px;
+    padding: 0 4px;
+  }
+
+  .sound-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* =========================
+     QUESTION
+     ========================= */
+
+  #question {
+    padding: 7px 10px;
+
+    font-size: 1.9rem;
+
+    border-radius: 0 0 18px 18px;
+  }
+
+  /* =========================
+     Limits
+     ========================= */
+
+  .limits {
+    position: absolute;
+
+    top: calc(
+      var(--gate-top) - var(--limit-box-height) - var(--limit-gap-above-gate)
+    );
+
+    left: 0;
+
+    width: 110%;
+    height: var(--limit-box-height);
+
+    z-index: var(--z-limit);
+
+    pointer-events: none;
+
+    text-shadow:
+      0 0 4px rgba(120, 190, 255, 0.9),
+      0 0 10px rgba(80, 160, 255, 0.7),
+      0 0 18px rgba(50, 120, 255, 0.45);
+  }
+
+  .limit-box {
+    position: absolute;
+
+    top: 0;
+
+    width: var(--limit-box-width);
+    height: var(--limit-box-height);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: var(--limit-font-size, var(--font-size-limit));
+    font-weight: var(--font-weight-bold);
+
+    color: var(--color-limit-text);
+
+    box-shadow:
+      0 0 10px rgba(30, 167, 255, 0.18),
+      inset 0 0 8px rgba(30, 167, 255, 0.08);
+
+    transform: translateX(-50%);
+  }
+
+  /* =========================
+     OPERATIONS
+     ========================= */
+
+  #operation-controls {
+    gap: 7px;
+
+    padding-top: 68px;
+    padding-bottom: 10px;
+  }
+
+  .operation-option input[type="checkbox"],
+  .operation-option input[type="radio"] {
+    width: 14px;
+    height: 14px;
+  }
+
+  .operation-option input[type="checkbox"]:checked::after {
+    font-size: 10px;
+  }
+
+  .operation-option input[type="radio"]:checked::after {
+    width: 6px;
+    height: 6px;
+  }
+
+  .answer-mode-options {
+    gap: 7px;
+
+    margin-top: 16px;
+    padding-top: 9px;
+  }
+
+  /* =========================
+     PLAYER / GATES
+     ========================= */
+
+  .professional-gate-option {
+    position: absolute;
+
+    top: 56%;
+    left: 0;
+
+    width: 100%;
+
+    transform: translateY(-10%);
+
+    text-align: center;
+    white-space: nowrap;
+
+    font-size: var(--professional-option-font-size, 1rem);
+    font-weight: var(--font-weight-bold);
+
+    color: var(--color-limit-text);
+
+    background: transparent;
+
+    pointer-events: none;
+
+    z-index: 2;
+  }
+
+  /* =========================
+     START
+     ========================= */
+
+  #start-play-button {
+    width: 280px;
+    height: 280px;
+  }
+
+  .start-play-icon {
+    font-size: 4rem;
+
+    transform: translateY(-35px);
+  }
+
+  .start-go-sequence {
+    bottom: 18%;
+
+    gap: 14px;
+  }
+
+  .start-go-large {
+    font-size: 3rem;
+  }
+
+  .start-go-medium {
+    font-size: 2rem;
+  }
+
+  .start-go-small {
+    font-size: 1.3rem;
+  }
+
+  /* =========================
+     PAUSE
+     ========================= */
+
+  .pause-content {
+    width: 280px;
+    height: 280px;
+
+    gap: 8px;
+  }
+
+  .pause-icon {
+    font-size: 4rem;
+  }
+
+  .pause-title {
+    font-size: 2rem;
+
+    letter-spacing: 2px;
+  }
+
+  /* =========================
+     GAME OVER
+     ========================= */
+
+  .game-over-title-wrapper {
+    width: 280px;
+  }
+
+  #game-over p {
+    margin: 8px 0;
+
+    font-size: 1.6rem;
+  }
+
+  #restart-button {
+    margin: 8px 0;
+
+    padding: 10px 22px;
+
+    font-size: 1rem;
+  }
 }
