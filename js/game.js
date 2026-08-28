@@ -101,6 +101,16 @@ const PLAYER_LANE_SPREAD = 1.1;
 const ROUND_TRANSITION_DELAY = 200;
 let isMuted = false;
 
+let pointerStartX = 0;
+let pointerStartY = 0;
+
+let lastTapTime = 0;
+
+const SWIPE_THRESHOLD = 45;
+const TAP_MOVE_THRESHOLD = 15;
+const DOUBLE_TAP_DELAY = 300;
+const TAP_THRESHOLD = 15;
+
 const ANSWER_MODES = {
   LIMIT: "limit",
   EASY: "easy",
@@ -326,8 +336,6 @@ function handleKeyboard(event) {
   }
 
   if (event.code === "Space") {
-    event.preventDefault();
-
     gameState.noGateSelected = true;
 
     const activeRow = gameState.gateRows.find((row) => !row.evaluated);
@@ -335,8 +343,6 @@ function handleKeyboard(event) {
     if (activeRow) {
       activeRow.forceExit = true;
     }
-
-    return;
   }
 }
 
@@ -393,6 +399,9 @@ function bindEvents() {
   answerModeRadios.forEach((radio) => {
     radio.addEventListener("change", handleAnswerModeChange);
   });
+
+  road.addEventListener("pointerdown", handlePointerDown);
+  road.addEventListener("pointerup", handlePointerUp);
 }
 
 function handleAnswerModeChange(event) {
@@ -1096,4 +1105,97 @@ function showLevelButtonPress(button) {
   setTimeout(() => {
     button.classList.remove("keyboard-press");
   }, 120);
+}
+
+function selectNoGate() {
+  gameState.noGateSelected = true;
+
+  const activeRow = gameState.gateRows.find((row) => !row.evaluated);
+
+  if (activeRow) {
+    activeRow.forceExit = true;
+  }
+}
+function handlePointerDown(event) {
+  if (gameState.mode !== GAME_MODES.PLAYING) {
+    return;
+  }
+
+  pointerStartX = event.clientX;
+  pointerStartY = event.clientY;
+
+  road.setPointerCapture(event.pointerId);
+}
+
+function handlePointerUp(event) {
+  if (gameState.mode !== GAME_MODES.PLAYING) {
+    return;
+  }
+
+  const deltaX = event.clientX - pointerStartX;
+  const deltaY = event.clientY - pointerStartY;
+
+  const absX = Math.abs(deltaX);
+  const absY = Math.abs(deltaY);
+
+  // =========================
+  // SWIPE RIGHT / LEFT
+  // =========================
+
+  if (absX > SWIPE_THRESHOLD && absX > absY) {
+    if (deltaX > 0 && gameState.playerLane < 2) {
+      gameState.playerLane++;
+
+      updatePlayerPosition();
+      updatePlayerLaneTilt();
+      tiltPlayer("right");
+    } else if (deltaX < 0 && gameState.playerLane > 0) {
+      gameState.playerLane--;
+
+      updatePlayerPosition();
+      updatePlayerLaneTilt();
+      tiltPlayer("left");
+    }
+
+    releasePointer(event);
+    return;
+  }
+
+  // =========================
+  // SWIPE DOWN = FAST FORWARD
+  // =========================
+
+  if (deltaY > SWIPE_THRESHOLD && absY > absX) {
+    gameState.isFastForward = true;
+
+    releasePointer(event);
+    return;
+  }
+
+  // =========================
+  // TAP / DOUBLE TAP
+  // =========================
+
+  if (absX < TAP_THRESHOLD && absY < TAP_THRESHOLD) {
+    const currentTime = Date.now();
+
+    if (currentTime - lastTapTime <= DOUBLE_TAP_DELAY) {
+      selectNoGate();
+      lastTapTime = 0;
+    } else {
+      lastTapTime = currentTime;
+    }
+  }
+
+  releasePointer(event);
+}
+
+function releasePointer(event) {
+  if (road.hasPointerCapture(event.pointerId)) {
+    road.releasePointerCapture(event.pointerId);
+  }
+}
+
+function handlePointerCancel(event) {
+  releasePointer(event);
 }

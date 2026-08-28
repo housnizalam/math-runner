@@ -1420,6 +1420,8 @@ input {
   #road {
     background-position: center top;
     background-size: 140% 150%;
+    pointer-events: auto;
+    touch-action: none;
   }
 
   :root {
@@ -1447,7 +1449,7 @@ input {
 
     --limit-box-width: 40px;
     --limit-box-height: 32px;
-    --limit-gap-above-gate: -10px;
+    --limit-gap-above-gate: -20px;
 
     --operation-option-gap: 2px;
     --operation-label-width: 30px;
