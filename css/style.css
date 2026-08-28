@@ -15,11 +15,10 @@
   --color-stop: #ff3b30; /* Stop icon */
   --color-transparent: transparent; /* Shared transparent background */
 
+  --font-family-main: "Oxanium";
   /* =========================================================
      TYPOGRAPHY
      ========================================================= */
-
-  --font-family-main: "Oxanium";
 
   --font-size-limit: 2.7rem; /* Standard limit value */
   --font-size-level-arrow: 0.9rem; /* Level up/down arrows */
@@ -1417,13 +1416,6 @@ input {
    ========================================================= */
 
 @media (max-width: 600px) {
-  #road {
-    background-position: center top;
-    background-size: 140% 150%;
-    pointer-events: auto;
-    touch-action: none;
-  }
-
   :root {
     --game-width: 100vw;
     --game-height: 100dvh;
@@ -1457,6 +1449,13 @@ input {
     --professional-option-margin-top: 18px;
 
     --level-up-text-size: 3.5rem;
+  }
+
+  #road {
+    background-position: center top;
+    background-size: 140% 150%;
+    pointer-events: auto;
+    touch-action: none;
   }
 
   html {

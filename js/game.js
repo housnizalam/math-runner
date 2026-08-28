@@ -30,6 +30,7 @@ import {
   playButtonClickSound,
   setMuted,
 } from "./audio.js";
+
 // =========================//
 //       Game Elements      //
 // =========================//
@@ -174,20 +175,35 @@ const PERSPECTIVE_CONFIG = {
 FUNCTION INDEX
 ==================================================
 
-updatePlayerPosition()          → Moves player to selected lane
-handleKeyboard()                → Handles keyboard controls
-handleKeyUp()                   → Handles key releases
 initGame()                      → Initializes game and events
 bindEvents()                    → Registers event listeners
 
+handleKeyboard()                → Handles keyboard controls
+handleKeyUp()                   → Handles key releases
+
+handlePointerDown()             → Stores start position for touch/mouse gesture
+handlePointerUp()               → Handles swipe and double-tap gestures
+handlePointerCancel()           → Cancels active pointer interaction
+releasePointer()                → Releases pointer capture
+selectNoGate()                  → Selects "No Gate" like Space key
+
+updatePlayerPosition()          → Moves player to selected lane
+tiltPlayer()                    → Adds temporary movement tilt
+updatePlayerLaneTilt()          → Updates permanent lane tilt
+
 startRound()                    → Creates a new question and gate row
+createGateRow()                 → Builds one dynamic gate row
 evaluateAnswer()                → Checks player's answer
+finishRound()                   → Updates score/lives and starts next round
+
 moveGateRows()                  → Moves active gate rows
 gameLoop()                      → Main animation loop
 hasRowReachedPlayer()           → Detects gate/player meeting
-finishRound()                   → Updates score/lives and starts next round
 checkGateRows()                 → Finds rows ready for evaluation
 removeExitedRows()              → Removes rows outside the road
+
+lerp()                          → Linear interpolation helper
+updateGateRowPerspective()      → Updates gate-row perspective
 
 togglePause()                   → Switches Start / Playing / Paused
 stopGame()                      → Returns game to START mode
@@ -201,24 +217,28 @@ updateHUD()                     → Updates Score / Level / Lives
 updateGameModeUI()              → Updates UI for current mode
 setGameMode()                   → Changes and applies game mode
 clearGateRows()                 → Removes all existing gate rows
-createGateRow()                 → Builds one dynamic gate row
 
 handleOperationChange()         → Handles operation checkbox changes
 handleSelectAllOperations()     → Handles Select All checkbox
-updateOperationControls()       → Enables/disables operation controls
+handleAnswerModeChange()        → Changes Limit / Easy / Pro mode
+updateOperationControls()       → Enables/disables game setup controls
 
 showAnswerFeedback()            → Shows correct/wrong feedback
 showLevelUpEffect()             → Shows level-up animation
 showGameOverEffect()            → Shows game-over animation
 
-lerp()                          → Linear interpolation helper
-updateGateRowPerspective()      → Updates gate-row perspective
-
-tiltPlayer()                    → Adds temporary movement tilt
-updatePlayerLaneTilt()          → Updates permanent lane tilt
 toggleMute()                    → Toggles game audio
 ==================================================
 */
+
+export function initGame() {
+  bindEvents();
+
+  setGameMode(GAME_MODES.START);
+
+  startRound();
+}
+
 
 function updatePlayerPosition() {
   const roadWidth = road.clientWidth;
@@ -357,14 +377,6 @@ function handleKeyUp(event) {
     levelUpButton.classList.remove("keyboard-hover");
     levelDownButton.classList.remove("keyboard-hover");
   }
-}
-
-export function initGame() {
-  bindEvents();
-
-  setGameMode(GAME_MODES.START);
-
-  startRound();
 }
 
 function bindEvents() {
